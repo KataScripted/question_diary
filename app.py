@@ -43,7 +43,7 @@ class Database:
     def get_users_for_notification(self):
         try:
             self.cur.execute(
-                '''SELECT (username) FROM public."USER" WHERE notification=True '''
+                '''SELECT (username) FROM public."USER" WHERE notification=True'''
             )
             users = self.cur.fetchall()
             new_users = []
@@ -103,7 +103,6 @@ class Database:
             for q in questions_guery:
                 for qq in q:
                     questions.append(qq)
-            print(questions)
             for user_id in users:
                 self.cur.execute(
                     '''SELECT (answer) FROM public."ANSWER" WHERE user_id='{}' AND date='{}';'''.format(user_id,
@@ -119,11 +118,8 @@ class Database:
                     question_text.append(q)
 
             for question_tuple, answer_tuple in zip(question_text, answers):
-                print(question_tuple)
-                print(answer_tuple)
                 for question1, answer1 in zip(question_tuple, answer_tuple):
                     answers_d.update({question1: answer1})
-            print(answers_d)
             return json.dumps(answers_d)
         finally:
             self.conn.close()
@@ -237,6 +233,22 @@ class Database:
             return json.dumps(answer_querry)
         finally:
             self.conn.close()
+    
+    def create_user_question(self, user, question):
+        try:
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user,)
+            )
+            user_ids = self.cur.fetchone()
+            for user_id in user_ids:
+                print(user_id)
+                self.cur.execute(
+                    '''INSERT INTO public."USERSQUESTION"(question, user_id) VALUES('{}','{}');'''.format(question, user_id)
+                )
+                self.conn.commit()
+            return json.dumps(["Created"])
+        finally:
+            self.conn.close()
 
 @app.route('/insertuser', methods=["GET", "POST"])
 def insert_user():
@@ -315,6 +327,16 @@ def get_all_answers_on_question():
         new_data.append(i)
     database = Database()
     result = database.get_all_answers_on_question(user=new_data[0],question=new_data[1])
+    return result
+
+@app.route('/createquestion', methods=["GET","POST"])
+def create_question():
+    data = json.loads(request.data)
+    new_data = []
+    for i in data.values():
+        new_data.append(i)
+    database = Database()
+    result = database.create_user_question(user=new_data[0], question=new_data[1])
     return result
 
 
