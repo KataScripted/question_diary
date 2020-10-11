@@ -239,14 +239,62 @@ class Database:
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user,)
             )
-            user_ids = self.cur.fetchone()
-            for user_id in user_ids:
+            user_id_querry = self.cur.fetchone()
+            for user_id in user_id_querry:
                 print(user_id)
                 self.cur.execute(
                     '''INSERT INTO public."USERSQUESTION"(question, user_id) VALUES('{}','{}');'''.format(question, user_id)
                 )
                 self.conn.commit()
             return json.dumps(["Created"])
+        finally:
+            self.conn.close()
+
+    def insert_answer_to_users_question(self, user, question, answer, date):
+        try:
+            if answer == "":
+                result = ["No"]
+                return json.dumps(result)
+            else:
+                self.cur.execute(
+                    '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
+                )
+                row1 = self.cur.fetchone()
+                username_id = 0
+                for row in row1:
+                    username_id = row
+
+                self.cur.execute(
+                    '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}';'''.format(question, )
+                )
+                row2 = self.cur.fetchone()
+                question_id = 0
+                for row in row2:
+                    question_id = row
+                self.cur.execute(
+                    '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
+                        username_id, question_id, answer, date)
+                )
+                self.conn.commit()
+                return json.dumps(["Done"])
+        finally:
+            self.conn.close()
+    
+    def get_question_by_user(self, user):
+        try:
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user,)
+            )
+            user_id_querry = self.cur.fetchone()
+            print(user_id_querry)
+            for user_id in user_id_querry:
+                print(user_id)
+                self.cur.execute(
+                    '''SELECT (question) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id,)
+                )
+                question_querry = self.cur.fetchall()
+            print(question_querry)
+            return json.dumps(question_querry)
         finally:
             self.conn.close()
 
@@ -337,6 +385,26 @@ def create_question():
         new_data.append(i)
     database = Database()
     result = database.create_user_question(user=new_data[0], question=new_data[1])
+    return result
+
+@app.route('/insertanswerusers', methods=["GET", "POST"])
+def insert_answer_to_users_question():
+    data = json.loads(request.data)
+    new_data = []
+    for i in data.values():
+        new_data.append(i)
+    database = Database()
+    result = database.insert_answer_to_users_question(user=new_data[0], question=new_data[1], answer=new_data[2], date=new_data[3])
+    return result
+
+@app.route('/questionsbyuser',methods=["GET", "POST"])
+def question_by_user():
+    data = json.loads(request.data)
+    new_data = []
+    for i in data.values():
+        new_data.append(i)
+    database = Database()
+    result = database.get_question_by_user(user=new_data[0])
     return result
 
 
