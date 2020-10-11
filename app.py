@@ -238,11 +238,6 @@ class Database:
         finally:
             self.conn.close()
 
-
-
-
-
-
 @app.route('/insertuser', methods=["GET", "POST"])
 def insert_user():
     data = json.loads(request.data)
