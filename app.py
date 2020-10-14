@@ -3,7 +3,7 @@ import json
 import psycopg2
 from flask import Flask
 from flask import request
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
@@ -312,15 +312,18 @@ class Database:
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
             user_id_querry = self.cur.fetchone()
-            for user_id in user_id_querry:
-                self.cur.execute(
-                    '''SELECT (question) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
-                )
-                question_querry = self.cur.fetchall()
-            for question_tuple in question_querry:
-                for question in question_tuple:
-                    result.append({"question": question})
-            return json.dumps(result)
+            if user_id_querry == None:
+                return json.dumps(["No questions"])
+            else:
+                for user_id in user_id_querry:
+                    self.cur.execute(
+                        '''SELECT (question) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
+                    )
+                    question_querry = self.cur.fetchall()
+                for question_tuple in question_querry:
+                    for question in question_tuple:
+                        result.append({"question": question})
+                return json.dumps(result)
         finally:
             self.conn.close()
 
@@ -465,7 +468,6 @@ def insert_answer_to_users_question():
 
 
 @app.route('/questionsbyuser', methods=["GET", "POST"])
-@cross_origin()
 def question_by_user():
     data = json.loads(request.data)
     new_data = []
