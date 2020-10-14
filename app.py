@@ -3,7 +3,7 @@ import json
 import psycopg2
 from flask import Flask
 from flask import request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 CORS(app)
@@ -465,6 +465,7 @@ def insert_answer_to_users_question():
 
 
 @app.route('/questionsbyuser', methods=["GET", "POST"])
+@cross_origin()
 def question_by_user():
     data = json.loads(request.data)
     new_data = []
