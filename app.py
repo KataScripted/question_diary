@@ -1,4 +1,5 @@
 import json
+
 import psycopg2
 from flask import Flask
 from flask import request
@@ -8,18 +9,17 @@ app = Flask(__name__)
 CORS(app)
 
 
-host_for_connection_str = "ec2-34-232-212-164.compute-1.amazonaws.com"
-
-db_for_connection_str = "dda36o54of7pm6"
-
-user_for_connection_str = "zcvpawmwciwjix"
-
-port_for_connection_str = "5432"
-
-password_for_connection_str = "906fca382d57a5254ffec5ad08d47820d815e041bc8c4ba1f5386e26f54f3b68"
-
 class Database:
     def __init__(self):
+        host_for_connection_str = "ec2-34-232-212-164.compute-1.amazonaws.com"
+
+        db_for_connection_str = "dda36o54of7pm6"
+
+        user_for_connection_str = "zcvpawmwciwjix"
+
+        port_for_connection_str = "5432"
+
+        password_for_connection_str = "906fca382d57a5254ffec5ad08d47820d815e041bc8c4ba1f5386e26f54f3b68"
         self.conn = psycopg2.connect(
             f"dbname={db_for_connection_str} user={user_for_connection_str} password={password_for_connection_str} host={host_for_connection_str} port={port_for_connection_str}")
         self.cur = self.conn.cursor()
@@ -104,7 +104,7 @@ class Database:
             for user_id in users:
                 self.cur.execute(
                     '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}' AND datee='{}';'''.format(user_id,
-                                                                                                             date)
+                                                                                                              date)
                 )
             questions_guery = self.cur.fetchall()
             for q in questions_guery:
@@ -113,7 +113,7 @@ class Database:
             for user_id in users:
                 self.cur.execute(
                     '''SELECT (answer) FROM public."ANSWER" WHERE user_id='{}' AND datee='{}';'''.format(user_id,
-                                                                                                             date)
+                                                                                                         date)
                 )
             answers = self.cur.fetchall()
             for q_id in questions:
@@ -220,8 +220,8 @@ class Database:
             return json.dumps(last_list_result)
         finally:
             self.conn.close()
-    
-    def get_all_answers_on_question(self,user,question):
+
+    def get_all_answers_on_question(self, user, question):
         try:
             result_d = []
             answers = []
@@ -237,7 +237,8 @@ class Database:
                 question_ids = self.cur.fetchone()
                 for question_id in question_ids:
                     self.cur.execute(
-                        '''SELECT (answer) FROM public."ANSWER" WHERE question_id='{}' AND user_id='{}';'''.format(question_id,iid)
+                        '''SELECT (answer) FROM public."ANSWER" WHERE question_id='{}' AND user_id='{}';'''.format(
+                            question_id, iid)
                     )
                     answer_querry = self.cur.fetchall()
                     for answer in answer_querry:
@@ -249,27 +250,25 @@ class Database:
                     date_querry = self.cur.fetchall()
                     for date in date_querry:
                         dates.append(date)
-            print(answers)
-            print(dates)
             length = len(dates)
             for date_tuple, answer_tuple, id in zip(dates, answers, range(length)):
                 for date1, answer1 in zip(date_tuple, answer_tuple):
-                    result_d.append({"id":id, "answer":answer1, "date":str(date1)})
-            print(result_d)
+                    result_d.append({"id": id, "answer": answer1, "date": str(date1)})
             return json.dumps(result_d)
         finally:
             self.conn.close()
-    
+
     def create_user_question(self, user, question):
         try:
             self.cur.execute(
-                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user,)
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
             user_id_querry = self.cur.fetchone()
             for user_id in user_id_querry:
                 print(user_id)
                 self.cur.execute(
-                    '''INSERT INTO public."USERSQUESTION"(question, user_id) VALUES('{}','{}');'''.format(question, user_id)
+                    '''INSERT INTO public."USERSQUESTION"(question, user_id) VALUES('{}','{}');'''.format(question,
+                                                                                                          user_id)
                 )
                 self.conn.commit()
             return json.dumps(["Created"])
@@ -305,29 +304,26 @@ class Database:
                 return json.dumps(["Done"])
         finally:
             self.conn.close()
-    
+
     def get_question_by_user(self, user):
         try:
             result = []
             self.cur.execute(
-                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user,)
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
             user_id_querry = self.cur.fetchone()
-            print(user_id_querry)
             for user_id in user_id_querry:
-                print(user_id)
                 self.cur.execute(
-                    '''SELECT (question) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id,)
+                    '''SELECT (question) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
                 )
                 question_querry = self.cur.fetchall()
-            print(question_querry)
             for question_tuple in question_querry:
                 for question in question_tuple:
-                    result.append({"question":question})
+                    result.append({"question": question})
             return json.dumps(result)
         finally:
             self.conn.close()
-    
+
     def get_answers_on_users_question(self, user):
         try:
             self.cur.execute(
@@ -359,10 +355,11 @@ class Database:
             length = len(answers)
             for question_tuple, answer_tuple, id in zip(questions, answers, range(length)):
                 for question1, answer1 in zip(question_tuple, answer_tuple):
-                    answers_d.append({"id":id, "question":question1 ,"answer":answer1})
+                    answers_d.append({"id": id, "question": question1, "answer": answer1})
             return json.dumps(answers_d)
         finally:
             self.conn.close()
+
 
 @app.route('/insertuser', methods=["GET", "POST"])
 def insert_user():
@@ -440,10 +437,11 @@ def get_all_answers_on_question():
     for i in data.values():
         new_data.append(i)
     database = Database()
-    result = database.get_all_answers_on_question(user=new_data[0],question=new_data[1])
+    result = database.get_all_answers_on_question(user=new_data[0], question=new_data[1])
     return result
 
-@app.route('/createquestion', methods=["GET","POST"])
+
+@app.route('/createquestion', methods=["GET", "POST"])
 def create_question():
     data = json.loads(request.data)
     new_data = []
@@ -453,6 +451,7 @@ def create_question():
     result = database.create_user_question(user=new_data[0], question=new_data[1])
     return result
 
+
 @app.route('/insertanswerusers', methods=["GET", "POST"])
 def insert_answer_to_users_question():
     data = json.loads(request.data)
@@ -460,10 +459,12 @@ def insert_answer_to_users_question():
     for i in data.values():
         new_data.append(i)
     database = Database()
-    result = database.insert_answer_to_users_question(user=new_data[0], question=new_data[1], answer=new_data[2], date=new_data[3])
+    result = database.insert_answer_to_users_question(user=new_data[0], question=new_data[1], answer=new_data[2],
+                                                      date=new_data[3])
     return result
 
-@app.route('/questionsbyuser',methods=["GET", "POST"])
+
+@app.route('/questionsbyuser', methods=["GET", "POST"])
 def question_by_user():
     data = json.loads(request.data)
     new_data = []
@@ -472,6 +473,7 @@ def question_by_user():
     database = Database()
     result = database.get_question_by_user(user=new_data[0])
     return result
+
 
 @app.route('/answeredonusers', methods=["GET", "POST"])
 def answered_on_users_question():
