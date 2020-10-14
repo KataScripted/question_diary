@@ -230,6 +230,13 @@ class Database:
                             '''SELECT (question_id, answer, date) FROM public."ANSWER" WHERE question_id='{}';'''.format(q_id,)
                         )
                         answer_querry = cur.fetchall()
+            mylist = []    
+            for i in answer_querry:
+                for j in i:
+                    l_srt = list(j.split())
+                    mylist.append(l_srt)
+            for k in mylist:
+                print(k)
             return json.dumps(answer_querry)
         finally:
             self.conn.close()
@@ -295,6 +302,41 @@ class Database:
                 question_querry = self.cur.fetchall()
             print(question_querry)
             return json.dumps(question_querry)
+        finally:
+            self.conn.close()
+    
+    def get_answers_on_users_question(self, user):
+        try:
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
+            )
+            users = self.cur.fetchone()
+            for user_id in users:
+                self.cur.execute(
+                    '''SELECT (question_id) FROM public."USERS_QUESTION_ANSWER" WHERE user_id='{}';'''.format(user_id, )
+                )
+            questions = []
+            answers = []
+            answers_d = {}
+            questions_ids = self.cur.fetchall()
+            for question_id in questions_ids:
+                for id in question_id:
+                    self.cur.execute(
+                        '''SELECT (question) FROM public."USERSQUESTION" WHERE id='{}';'''.format(id, )
+                    )
+                    id_of_question = self.cur.fetchone()
+                    questions.append(id_of_question)
+            for user_id in users:
+                self.cur.execute(
+                    '''SELECT (answer) FROM public."USERS_QUESTION_ANSWER" WHERE user_id='{}';'''.format(user_id)
+                )
+                answers1 = self.cur.fetchall()
+                for answer1 in answers1:
+                    answers.append(answer1)
+            for question_tuple, answer_tuple in zip(questions, answers):
+                for question1, answer1 in zip(question_tuple, answer_tuple):
+                    answers_d.update({question1: answer1})
+            return json.dumps(answers_d)
         finally:
             self.conn.close()
 
@@ -405,6 +447,16 @@ def question_by_user():
         new_data.append(i)
     database = Database()
     result = database.get_question_by_user(user=new_data[0])
+    return result
+
+@app.route('/answeredonusers', methods=["GET", "POST"])
+def answered_on_users_question():
+    data = json.loads(request.data)
+    new_data = []
+    for i in data.values():
+        new_data.append(i)
+    database = Database()
+    result = database.get_answers_on_users_question(user=new_data[0])
     return result
 
 
