@@ -120,7 +120,10 @@ class Database:
             for question_tuple, answer_tuple in zip(question_text, answers):
                 for question1, answer1 in zip(question_tuple, answer_tuple):
                     answers_d.update({question1: answer1})
-            return json.dumps(answers_d)
+            if bool(answers_d):
+                return json.dumps(answers_d)
+            else:
+                return json.dumps(["No"])
         finally:
             self.conn.close()
 
