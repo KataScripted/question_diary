@@ -24,7 +24,7 @@ class Database:
             f"dbname={db_for_connection_str} user={user_for_connection_str} password={password_for_connection_str} host={host_for_connection_str} port={port_for_connection_str}")
         self.cur = self.conn.cursor()
 
-    def insert_user(self, user, notification):
+    def insert_user(self, user, notification, avatar, name):
         try:
             self.cur.execute(
 
@@ -37,8 +37,8 @@ class Database:
                 return json.dumps(result)
             else:
                 self.cur.execute(
-                    '''INSERT INTO public."USER"(username, notification) VALUES('{}','{}');'''.format(user,
-                                                                                                      notification)
+                    '''INSERT INTO public."USER"(username, notification, avatar, name) VALUES('{}','{}','{}','{}');'''.format(user,
+                                                                                                      notification, avatar, name)
                 )
                 self.conn.commit()
                 result = ["Inserted"]
@@ -371,7 +371,7 @@ def insert_user():
     for i in data.values():
         new_data.append(i)
     database = Database()
-    result = database.insert_user(user=new_data[0], notification=new_data[1])
+    result = database.insert_user(user=new_data[0], notification=new_data[1], avatar=new_data[2], name=new_data[3])
     return result
 
 
