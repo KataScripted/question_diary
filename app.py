@@ -4,12 +4,20 @@ from psycopg2.extras import NamedTupleCursor
 from flask import Flask
 from flask import request
 from flask_cors import CORS
-from config import user_for_connection_str, password_for_connection_str, host_for_connection_str, \
-    port_for_connection_str, db_for_connection_str
 
 app = Flask(__name__)
 CORS(app)
 
+
+host_for_connection_str = "ec2-34-232-212-164.compute-1.amazonaws.com"
+
+db_for_connection_str = "dda36o54of7pm6"
+
+user_for_connection_str = "zcvpawmwciwjix"
+
+port_for_connection_str = "5432"
+
+password_for_connection_str = "906fca382d57a5254ffec5ad08d47820d815e041bc8c4ba1f5386e26f54f3b68"
 
 class Database:
     def __init__(self):
@@ -76,7 +84,7 @@ class Database:
                 for row in row2:
                     question_id = row
                 self.cur.execute(
-                    '''INSERT INTO public."ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
+                    '''INSERT INTO public."ANSWER"(user_id, question_id, answer, datee) VALUES('{}','{}','{}','{}')'''.format(
                         username_id, question_id, answer, date)
                 )
                 self.conn.commit()
@@ -96,7 +104,7 @@ class Database:
             users = self.cur.fetchone()
             for user_id in users:
                 self.cur.execute(
-                    '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}' AND date='{}';'''.format(user_id,
+                    '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}' AND datee='{}';'''.format(user_id,
                                                                                                              date)
                 )
             questions_guery = self.cur.fetchall()
@@ -105,7 +113,7 @@ class Database:
                     questions.append(qq)
             for user_id in users:
                 self.cur.execute(
-                    '''SELECT (answer) FROM public."ANSWER" WHERE user_id='{}' AND date='{}';'''.format(user_id,
+                    '''SELECT (answer) FROM public."ANSWER" WHERE user_id='{}' AND datee='{}';'''.format(user_id,
                                                                                                              date)
                 )
             answers = self.cur.fetchall()
@@ -230,7 +238,7 @@ class Database:
                 for question_id in question_ids:
                     for q_id in question_id:
                         cur.execute(
-                            '''SELECT (question_id, answer, date) FROM public."ANSWER" WHERE question_id='{}';'''.format(q_id,)
+                            '''SELECT (question_id, answer, datee) FROM public."ANSWER" WHERE question_id='{}';'''.format(q_id,)
                         )
                         answer_querry = cur.fetchall()
             mylist = []    
@@ -282,7 +290,7 @@ class Database:
                 for row in row2:
                     question_id = row
                 self.cur.execute(
-                    '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
+                    '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, datee) VALUES('{}','{}','{}','{}')'''.format(
                         username_id, question_id, answer, date)
                 )
                 self.conn.commit()
