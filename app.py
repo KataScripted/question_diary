@@ -1,6 +1,5 @@
 import json
 import psycopg2
-from psycopg2.extras import NamedTupleCursor
 from flask import Flask
 from flask import request
 from flask_cors import CORS
@@ -224,31 +223,40 @@ class Database:
     
     def get_all_answers_on_question(self,user,question):
         try:
-            cur = self.conn.cursor(cursor_factory=NamedTupleCursor)
-            result = []
+            result_d = []
+            answers = []
+            dates = []
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
             user_ids = self.cur.fetchone()
             for iid in user_ids:
                 self.cur.execute(
-                    '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}';'''.format(iid, )
+                    '''SELECT (id) FROM public."QUESTION" WHERE question='{}';'''.format(question, )
                 )
-                question_ids = self.cur.fetchall()
+                question_ids = self.cur.fetchone()
                 for question_id in question_ids:
-                    for q_id in question_id:
-                        cur.execute(
-                            '''SELECT (question_id, answer, datee) FROM public."ANSWER" WHERE question_id='{}';'''.format(q_id,)
-                        )
-                        answer_querry = cur.fetchall()
-            mylist = []    
-            for i in answer_querry:
-                for j in i:
-                    l_srt = list(j.split())
-                    mylist.append(l_srt)
-            for k in mylist:
-                print(k)
-            return json.dumps(answer_querry)
+                    self.cur.execute(
+                        '''SELECT (answer) FROM public."ANSWER" WHERE question_id='{}' AND user_id='{}';'''.format(question_id,iid)
+                    )
+                    answer_querry = self.cur.fetchall()
+                    for answer in answer_querry:
+                        answers.append(answer)
+                    self.cur.execute(
+                        '''SELECT (datee) FROM public."ANSWER" WHERE question_id='{}' AND user_id='{}';'''.format(
+                            question_id, iid)
+                    )
+                    date_querry = self.cur.fetchall()
+                    for date in date_querry:
+                        dates.append(date)
+            print(answers)
+            print(dates)
+            length = len(dates)
+            for date_tuple, answer_tuple, id in zip(dates, answers, range(length)):
+                for date1, answer1 in zip(date_tuple, answer_tuple):
+                    result_d.append({"id":id, "answer":answer1, "date":str(date1)})
+            print(result_d)
+            return json.dumps(result_d)
         finally:
             self.conn.close()
     
@@ -300,6 +308,7 @@ class Database:
     
     def get_question_by_user(self, user):
         try:
+            result = []
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user,)
             )
@@ -312,7 +321,10 @@ class Database:
                 )
                 question_querry = self.cur.fetchall()
             print(question_querry)
-            return json.dumps(question_querry)
+            for question_tuple in question_querry:
+                for question in question_tuple:
+                    result.append({"question":question})
+            return json.dumps(result)
         finally:
             self.conn.close()
     
@@ -328,7 +340,7 @@ class Database:
                 )
             questions = []
             answers = []
-            answers_d = {}
+            answers_d = []
             questions_ids = self.cur.fetchall()
             for question_id in questions_ids:
                 for id in question_id:
@@ -344,9 +356,10 @@ class Database:
                 answers1 = self.cur.fetchall()
                 for answer1 in answers1:
                     answers.append(answer1)
-            for question_tuple, answer_tuple in zip(questions, answers):
+            length = len(answers)
+            for question_tuple, answer_tuple, id in zip(questions, answers, range(length)):
                 for question1, answer1 in zip(question_tuple, answer_tuple):
-                    answers_d.update({question1: answer1})
+                    answers_d.append({"id":id, "question":question1 ,"answer":answer1})
             return json.dumps(answers_d)
         finally:
             self.conn.close()
