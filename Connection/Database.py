@@ -308,7 +308,7 @@ class Database:
                 for row in row2:
                     question_id = row
                 self.cur.execute(
-                    '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, datee) VALUES('{}','{}','{}','{}')'''.format(
+                    '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
                         username_id, question_id, answer, date)
                 )
                 self.conn.commit()
@@ -371,5 +371,93 @@ class Database:
                 for question1, answer1 in zip(question_tuple, answer_tuple):
                     answers_d.append({"id": id, "question": question1, "answer": answer1})
             return json.dumps(answers_d)
+        finally:
+            self.conn.close()
+
+    def get_user_with_most_answered_questions(self):
+        try:
+            def most_frequent(List):
+                counter = 0
+                num = List[0]
+
+                for i in List:
+                    curr_frequency = List.count(i)
+                    if (curr_frequency > counter):
+                        counter = curr_frequency
+                        num = i
+                return num
+            ids = []
+            user_avatar = []
+            user_name = []
+            result = []
+            self.cur.execute(
+                '''SELECT (user_id) FROM public."USERS_QUESTION_ANSWER";'''
+            )
+            user_ids = self.cur.fetchall()
+            for id_tuple in user_ids:
+                for id in id_tuple:
+                    ids.append(id)
+
+            # Get top №1
+            frequent_id = most_frequent(ids)
+            self.cur.execute(
+                '''SELECT (avatar) FROM public."USER" WHERE id='{}';'''.format(frequent_id)
+            )
+            avatar_querry = self.cur.fetchone()
+            for avatar in avatar_querry:
+                user_avatar.append(avatar)
+            self.cur.execute(
+                '''SELECT (name) FROM public."USER" WHERE id='{}';'''.format(frequent_id)
+            )
+            name_querry = self.cur.fetchone()
+            for name in name_querry:
+                user_name.append(name)
+            user_info = {"id":frequent_id, "name":user_name[0], "avatar":user_avatar[0]}
+            result.append(user_info)
+
+            # Get top №2
+            while frequent_id in ids: ids.remove(frequent_id)
+            frequent_id1 = most_frequent(ids)
+            user_name1 = []
+            user_avatar1 = []
+            self.cur.execute(
+                '''SELECT (avatar) FROM public."USER" WHERE id='{}';'''.format(frequent_id1)
+            )
+            avatar_querry1 = self.cur.fetchone()
+            for avatar in avatar_querry1:
+                user_avatar1.append(avatar)
+            self.cur.execute(
+                '''SELECT (name) FROM public."USER" WHERE id='{}';'''.format(frequent_id1)
+            )
+            name_querry1 = self.cur.fetchone()
+            for name in name_querry1:
+                user_name1.append(name)
+            user_info1 = {"id": frequent_id1, "name": user_name1[0], "avatar": user_avatar1[0]}
+            result.append(user_info1)
+
+            #Get top №3
+            while frequent_id1 in ids: ids.remove(frequent_id1)
+            print(ids)
+            frequent_id2 = most_frequent(ids)
+            print(frequent_id2)
+            user_name2 = []
+            user_avatar2 = []
+            self.cur.execute(
+                '''SELECT (avatar) FROM public."USER" WHERE id='{}';'''.format(frequent_id2)
+            )
+            avatar_querry2 = self.cur.fetchone()
+            for avatar in avatar_querry2:
+                user_avatar2.append(avatar)
+            self.cur.execute(
+                '''SELECT (name) FROM public."USER" WHERE id='{}';'''.format(frequent_id2)
+            )
+            name_querry2 = self.cur.fetchone()
+            for name in name_querry2:
+                user_name2.append(name)
+            user_info2 = {"id": frequent_id2, "name": user_name2[0], "avatar": user_avatar2[0]}
+            result.append(user_info2)
+
+            #Return top 3.
+            return json.dumps(result)
         finally:
             self.conn.close()

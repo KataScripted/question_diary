@@ -80,5 +80,11 @@ def answered_on_users_question():
     return result
 
 
+@app.route('/top', methods=["GET", "POST"])
+def get_users_with_most_answered():
+    result = handler.get_users_with_most_answered()
+    return result
+
+
 if __name__ == '__main__':
     app.run(debug=True)

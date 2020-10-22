@@ -4,7 +4,6 @@ from flask import request
 
 from Connection.Database import Database
 
-Connection = Database()
 
 
 class Controller:
@@ -110,4 +109,9 @@ class Controller:
             new_data.append(i)
         database = Database()
         result = database.get_answers_on_users_question(user=new_data[0])
+        return result
+
+    def get_users_with_most_answered(self):
+        database = Database()
+        result = database.get_user_with_most_answered_questions()
         return result
