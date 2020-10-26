@@ -152,6 +152,7 @@ class Database:
                 )
             questions = []
             answers = []
+            dates = []
             answers_d = []
             questions_ids = self.cur.fetchall()
             for question_id in questions_ids:
@@ -169,9 +170,15 @@ class Database:
                 answers1 = self.cur.fetchall()
                 for answer1 in answers1:
                     answers.append(answer1)
-            for question_tuple, answer_tuple, id_tuple in zip(questions, answers, questions_ids):
-                for question1, answer1, id in zip(question_tuple, answer_tuple, id_tuple):
-                    answers_d.append({"id": id, "question": question1, "answer": answer1})
+                self.cur.execute(
+                    '''SELECT (datee) FROM public."ANSWER" WHERE user_id='{}';'''.format(user_id)
+                )
+                dates1 = self.cur.fetchall()
+                for date1 in dates1:
+                    dates.append(date1)
+                for question_tuple, answer_tuple, id_tuple, dates_tuple in zip(questions, answers, questions_ids, dates):
+                    for question1, answer1, id, date in zip(question_tuple, answer_tuple, id_tuple, dates_tuple):
+                        answers_d.append({"id": id, "question": question1, "answer": answer1, "date":str(date)})
             return json.dumps(answers_d)
         finally:
             self.conn.close()
