@@ -159,8 +159,9 @@ class Database:
                     self.cur.execute(
                         '''SELECT (question) FROM public."QUESTION" WHERE id='{}';'''.format(id, )
                     )
-                    id_of_question = self.cur.fetchone()
-                    questions.append(id_of_question)
+                    question = self.cur.fetchone()
+                    questions.append(question)
+
             for user_id in users:
                 self.cur.execute(
                     '''SELECT (answer) FROM public."ANSWER" WHERE user_id='{}';'''.format(user_id)
@@ -168,9 +169,8 @@ class Database:
                 answers1 = self.cur.fetchall()
                 for answer1 in answers1:
                     answers.append(answer1)
-            length = len(answers)
-            for question_tuple, answer_tuple, id in zip(questions, answers, range(length)):
-                for question1, answer1 in zip(question_tuple, answer_tuple):
+            for question_tuple, answer_tuple, id_tuple in zip(questions, answers, questions_ids):
+                for question1, answer1, id in zip(question_tuple, answer_tuple, id_tuple):
                     answers_d.append({"id": id, "question": question1, "answer": answer1})
             return json.dumps(answers_d)
         finally:
