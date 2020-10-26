@@ -115,3 +115,21 @@ class Controller:
         database = Database()
         result = database.get_user_with_most_answered_questions()
         return result
+
+    def dayly_mood(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.set_dayly_mood(user=new_data[0], mood=new_data[1], date=new_data[2])
+        return result
+
+    def get_mood_report(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.get_mood_report(user=new_data[0])
+        return result

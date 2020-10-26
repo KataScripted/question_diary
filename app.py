@@ -1,12 +1,11 @@
-from flask import Flask
 from Controllers.Controllers import Controller
+from flask import Flask
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
 handler = Controller()
-
 
 
 @app.route('/insertuser', methods=["GET", "POST"])
@@ -31,6 +30,7 @@ def get_all_questions():
 def answered():
     result = handler.answered()
     return result
+
 
 @app.route('/notification', methods=["GET"])
 def get_users_for_notification():
@@ -83,6 +83,18 @@ def answered_on_users_question():
 @app.route('/top', methods=["GET", "POST"])
 def get_users_with_most_answered():
     result = handler.get_users_with_most_answered()
+    return result
+
+
+@app.route('/mood', methods=["GET", "POST"])
+def set_dayly_mood():
+    result = handler.dayly_mood()
+    return result
+
+
+@app.route('/getmood', methods=["GET", "POST"])
+def get_dayly_mood():
+    result = handler.get_mood_report()
     return result
 
 

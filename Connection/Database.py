@@ -62,7 +62,7 @@ class Database:
                 for id in ids1:
                     new_ids.append(id)
             for id, username in zip(new_ids, new_users):
-                result.append({"id":id,"username":username})
+                result.append({"id": id, "username": username})
             return json.dumps(result)
         finally:
             self.conn.close()
@@ -176,9 +176,10 @@ class Database:
                 dates1 = self.cur.fetchall()
                 for date1 in dates1:
                     dates.append(date1)
-                for question_tuple, answer_tuple, id_tuple, dates_tuple in zip(questions, answers, questions_ids, dates):
+                for question_tuple, answer_tuple, id_tuple, dates_tuple in zip(questions, answers, questions_ids,
+                                                                               dates):
                     for question1, answer1, id, date in zip(question_tuple, answer_tuple, id_tuple, dates_tuple):
-                        answers_d.append({"id": id, "question": question1, "answer": answer1, "date":str(date)})
+                        answers_d.append({"id": id, "question": question1, "answer": answer1, "date": str(date)})
             return json.dumps(answers_d)
         finally:
             self.conn.close()
@@ -191,7 +192,7 @@ class Database:
             )
             rows = self.cur.fetchall()
             for row in rows:
-                result.append({"id":row[0], "question":row[1]})
+                result.append({"id": row[0], "question": row[1]})
             return json.dumps(result)
         finally:
             self.conn.close()
@@ -358,6 +359,7 @@ class Database:
             questions = []
             answers = []
             answers_d = []
+            dates = []
             questions_ids = self.cur.fetchall()
             for question_id in questions_ids:
                 for id in question_id:
@@ -368,15 +370,21 @@ class Database:
                     questions.append(id_of_question)
             for user_id in users:
                 self.cur.execute(
-                    '''SELECT (answer) FROM public."USERS_QUESTION_ANSWER" WHERE user_id='{}';'''.format(user_id)
+                    '''SELECT (answer) FROM public."ANSWER" WHERE user_id='{}';'''.format(user_id)
                 )
                 answers1 = self.cur.fetchall()
                 for answer1 in answers1:
                     answers.append(answer1)
-            length = len(answers)
-            for question_tuple, answer_tuple, id in zip(questions, answers, range(length)):
-                for question1, answer1 in zip(question_tuple, answer_tuple):
-                    answers_d.append({"id": id, "question": question1, "answer": answer1})
+                self.cur.execute(
+                    '''SELECT (datee) FROM public."ANSWER" WHERE user_id='{}';'''.format(user_id)
+                )
+                dates1 = self.cur.fetchall()
+                for date1 in dates1:
+                    dates.append(date1)
+                for question_tuple, answer_tuple, id_tuple, dates_tuple in zip(questions, answers, questions_ids,
+                                                                               dates):
+                    for question1, answer1, id, date in zip(question_tuple, answer_tuple, id_tuple, dates_tuple):
+                        answers_d.append({"id": id, "question": question1, "answer": answer1, "date": str(date)})
             return json.dumps(answers_d)
         finally:
             self.conn.close()
@@ -393,6 +401,7 @@ class Database:
                         counter = curr_frequency
                         num = i
                 return num
+
             ids = []
             user_avatar = []
             user_name = []
@@ -419,7 +428,7 @@ class Database:
             name_querry = self.cur.fetchone()
             for name in name_querry:
                 user_name.append(name)
-            user_info = {"id":frequent_id, "name":user_name[0], "avatar":user_avatar[0]}
+            user_info = {"id": frequent_id, "name": user_name[0], "avatar": user_avatar[0]}
             result.append(user_info)
 
             # Get top №2
@@ -442,7 +451,7 @@ class Database:
             user_info1 = {"id": frequent_id1, "name": user_name1[0], "avatar": user_avatar1[0]}
             result.append(user_info1)
 
-            #Get top №3
+            # Get top №3
             while frequent_id1 in ids: ids.remove(frequent_id1)
             print(ids)
             frequent_id2 = most_frequent(ids)
@@ -464,7 +473,47 @@ class Database:
             user_info2 = {"id": frequent_id2, "name": user_name2[0], "avatar": user_avatar2[0]}
             result.append(user_info2)
 
-            #Return top 3.
+            # Return top 3.
             return json.dumps(result)
+        finally:
+            self.conn.close()
+
+    def set_dayly_mood(self, user, mood, date):
+        try:
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
+            )
+            user_ids = self.cur.fetchone()
+            for id in user_ids:
+                self.cur.execute(
+                    '''INSERT INTO public."MOOD"(user_id, mood, date) VALUES('{}','{}','{}');'''.format(id, mood, date)
+                )
+                self.conn.commit()
+                return json.dumps(["Done"])
+        finally:
+            self.conn.close()
+
+    def get_mood_report(self, user):
+        try:
+            result = []
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
+            )
+            user_ids = self.cur.fetchone()
+            for id in user_ids:
+                self.cur.execute(
+                    '''SELECT (mood) FROM public."MOOD" WHERE user_id='{}';'''.format(id)
+                )
+                mood_querry = self.cur.fetchall()
+                self.cur.execute(
+                    '''SELECT (date) FROM public."MOOD" WHERE user_id='{}';'''.format(id)
+                )
+                date_querry = self.cur.fetchall()
+                print(mood_querry)
+                print(date_querry)
+                for mood_tuple, date_tuple in zip(mood_querry, date_querry):
+                    for mood, date in zip(mood_tuple, date_tuple):
+                        result.append({"mood": mood, "date": date})
+                return json.dumps(result)
         finally:
             self.conn.close()
