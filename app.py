@@ -110,5 +110,11 @@ def get_qustion_by_id_user():
     return result
 
 
+@app.route('/allusersquestions', methods=["GET", "POST"])
+def get_all_questions_by_users():
+    result = handler.all_question_by_users()
+    return result
+
+
 if __name__ == '__main__':
     app.run(debug=True)

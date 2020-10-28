@@ -538,3 +538,29 @@ class Database:
             return json.dumps(result)
         finally:
             self.conn.close()
+
+    def all_questions_by_user_dao(self):
+        try:
+            result = []
+            questions = []
+            ids = []
+            self.cur.execute(
+                '''SELECT (question) FROM public."USERSQUESTION"'''
+            )
+            querry = self.cur.fetchall()
+            for question_tuple in querry:
+                for question in question_tuple:
+                    questions.append(question)
+
+            self.cur.execute(
+                '''SELECT (id) FROM public."USERSQUESTION"'''
+            )
+            querry = self.cur.fetchall()
+            for id_tuple in querry:
+                for id in id_tuple:
+                    ids.append(id)
+            for id, q in zip(ids, questions):
+                result.append({"id":id, "question":q})
+            return json.dumps(result)
+        finally:
+            self.conn.close()

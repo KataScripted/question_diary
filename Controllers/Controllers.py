@@ -151,3 +151,8 @@ class Controller:
         database = Database()
         result = database.get_question_by_id_user_dao(id=new_data[0])
         return result
+
+    def all_question_by_users(self):
+        database = Database()
+        result = database.all_questions_by_user_dao()
+        return result
