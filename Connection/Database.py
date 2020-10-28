@@ -513,15 +513,15 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_id_by_question_dao(self, question):
+    def get_question_by_id_dao(self, id):
         try:
             result = []
             self.cur.execute(
-                '''SELECT (id) FROM public."QUESTION" WHERE question='{}';'''.format(question)
+                '''SELECT (question) FROM public."QUESTION" WHERE id='{}';'''.format(id)
             )
-            id_querry = self.cur.fetchone()
-            for id in id_querry:
-                result.append({"id": id})
+            q_querry = self.cur.fetchone()
+            for question in q_querry:
+                result.append({"question": question})
             return json.dumps(result)
         except:
             return json.dumps(["Error"])

@@ -97,9 +97,9 @@ def get_dayly_mood():
     result = handler.get_mood_report()
     return result
 
-@app.route('/getid', methods=["GET", "POST"])
-def get_id_by_question():
-    result = handler.get_id_by_question()
+@app.route('/questionbyid', methods=["GET", "POST"])
+def get_qustion_by_id():
+    result = handler.get_question_by_id()
     return result
 
 
