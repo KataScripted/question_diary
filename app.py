@@ -97,6 +97,11 @@ def get_dayly_mood():
     result = handler.get_mood_report()
     return result
 
+@app.route('/getid', methods=["GET", "POST"])
+def get_id_by_question():
+    result = handler.get_id_by_question()
+    return result
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -18,7 +18,7 @@ class Database:
             f"dbname={db_for_connection_str} user={user_for_connection_str} password={password_for_connection_str} host={host_for_connection_str} port={port_for_connection_str}")
         self.cur = self.conn.cursor()
 
-    def insert_user(self, user, notification, avatar, name):
+    def insert_user_dao(self, user, notification, avatar, name):
         try:
             self.cur.execute(
 
@@ -42,7 +42,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_users_for_notification(self):
+    def get_users_for_notification_dao(self):
         try:
             result = []
             self.cur.execute(
@@ -67,7 +67,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def insert_answer(self, user, question, answer, date):
+    def insert_answer_dao(self, user, question, answer, date):
         try:
             if answer == "":
                 result = ["No"]
@@ -98,7 +98,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_answer_by_date(self, user, date):
+    def get_answer_by_date_dao(self, user, date):
         try:
             answers_d = []
             questions = []
@@ -140,7 +140,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_answered_questions(self, user):
+    def get_answered_questions_dao(self, user):
         try:
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
@@ -184,7 +184,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_all_questions(self):
+    def get_all_questions_dao(self):
         try:
             result = []
             self.cur.execute(
@@ -197,7 +197,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_new_question(self, user):
+    def get_new_question_dao(self, user):
         try:
             all_questions = []
             questions = []
@@ -240,7 +240,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_all_answers_on_question(self, user, question):
+    def get_all_answers_on_question_dao(self, user, question):
         try:
             result_d = []
             answers = []
@@ -277,14 +277,13 @@ class Database:
         finally:
             self.conn.close()
 
-    def create_user_question(self, user, question):
+    def create_user_question_dao(self, user, question):
         try:
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
             user_id_querry = self.cur.fetchone()
             for user_id in user_id_querry:
-                print(user_id)
                 self.cur.execute(
                     '''INSERT INTO public."USERSQUESTION"(question, user_id) VALUES('{}','{}');'''.format(question,
                                                                                                           user_id)
@@ -294,7 +293,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def insert_answer_to_users_question(self, user, question, answer, date):
+    def insert_answer_to_users_question_dao(self, user, question, answer, date):
         try:
             if answer == "":
                 result = ["No"]
@@ -324,7 +323,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_question_by_user(self, user):
+    def get_question_by_user_dao(self, user):
         try:
             result = []
             self.cur.execute(
@@ -346,7 +345,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_answers_on_users_question(self, user):
+    def get_answers_on_users_question_dao(self, user):
         try:
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
@@ -389,7 +388,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_user_with_most_answered_questions(self):
+    def get_user_with_most_answered_questions_dao(self):
         try:
             def most_frequent(List):
                 counter = 0
@@ -453,9 +452,7 @@ class Database:
 
             # Get top №3
             while frequent_id1 in ids: ids.remove(frequent_id1)
-            print(ids)
             frequent_id2 = most_frequent(ids)
-            print(frequent_id2)
             user_name2 = []
             user_avatar2 = []
             self.cur.execute(
@@ -478,7 +475,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def set_dayly_mood(self, user, mood, date):
+    def set_dayly_mood_dao(self, user, mood, date):
         try:
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
@@ -493,7 +490,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_mood_report(self, user):
+    def get_mood_report_dao(self, user):
         try:
             result = []
             self.cur.execute(
@@ -509,11 +506,24 @@ class Database:
                     '''SELECT (date) FROM public."MOOD" WHERE user_id='{}';'''.format(id)
                 )
                 date_querry = self.cur.fetchall()
-                print(mood_querry)
-                print(date_querry)
                 for mood_tuple, date_tuple in zip(mood_querry, date_querry):
                     for mood, date in zip(mood_tuple, date_tuple):
                         result.append({"mood": mood, "date": date})
                 return json.dumps(result)
+        finally:
+            self.conn.close()
+
+    def get_id_by_question_dao(self, question):
+        try:
+            result = []
+            self.cur.execute(
+                '''SELECT (id) FROM public."QUESTION" WHERE question='{}';'''.format(question)
+            )
+            id_querry = self.cur.fetchone()
+            for id in id_querry:
+                result.append({"id": id})
+            return json.dumps(result)
+        except:
+            return json.dumps(["Error"])
         finally:
             self.conn.close()
