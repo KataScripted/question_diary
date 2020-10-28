@@ -513,7 +513,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_question_by_id_dao(self, id):
+    def get_question_by_id_admin_dao(self, id):
         try:
             result = []
             self.cur.execute(
@@ -523,7 +523,18 @@ class Database:
             for question in q_querry:
                 result.append({"question": question})
             return json.dumps(result)
-        except:
-            return json.dumps(["Error"])
+        finally:
+            self.conn.close()
+
+    def get_question_by_id_user_dao(self, id):
+        try:
+            result = []
+            self.cur.execute(
+                '''SELECT (question) FROM public."USERSQUESTION" WHERE id='{}';'''.format(id)
+            )
+            q_querry = self.cur.fetchone()
+            for question in q_querry:
+                result.append({"question": question})
+            return json.dumps(result)
         finally:
             self.conn.close()

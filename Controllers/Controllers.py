@@ -134,11 +134,20 @@ class Controller:
         result = database.get_mood_report_dao(user=new_data[0])
         return result
 
-    def get_question_by_id(self):
+    def get_question_by_id_admin(self):
         data = json.loads(request.data)
         new_data = []
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.get_question_by_id_dao(id=new_data[0])
+        result = database.get_question_by_id_admin_dao(id=new_data[0])
+        return result
+
+    def get_question_by_id_user(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.get_question_by_id_user_dao(id=new_data[0])
         return result
