@@ -560,7 +560,28 @@ class Database:
                 for id in id_tuple:
                     ids.append(id)
             for id, q in zip(ids, questions):
-                result.append({"id":id, "question":q})
+                result.append({"id": id, "question": q})
+            return json.dumps(result)
+        finally:
+            self.conn.close()
+
+    def get_user_info_dao(self, user):
+        try:
+            result = []
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user)
+            )
+            id_querry = self.cur.fetchone()
+            self.cur.execute(
+                '''SELECT (name) FROM public."USER" WHERE username='{}';'''.format(user)
+            )
+            name_querry = self.cur.fetchone()
+            self.cur.execute(
+                '''SELECT (avatar) FROM public."USER" WHERE username='{}';'''.format(user)
+            )
+            avatar_querry = self.cur.fetchone()
+            for id, name, avatar in zip(id_querry, name_querry, avatar_querry):
+                result.append({"id":id, "name":name,"avatar":avatar})
             return json.dumps(result)
         finally:
             self.conn.close()

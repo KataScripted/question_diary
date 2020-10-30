@@ -1,9 +1,7 @@
 import json
 
-from flask import request
-
 from Connection.Database import Database
-
+from flask import request
 
 
 class Controller:
@@ -155,4 +153,13 @@ class Controller:
     def all_question_by_users(self):
         database = Database()
         result = database.all_questions_by_user_dao()
+        return result
+
+    def get_user_info(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.get_user_info_dao(user=new_data[0])
         return result

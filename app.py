@@ -116,5 +116,11 @@ def get_all_questions_by_users():
     return result
 
 
+@app.route('/userinfo', methods=["GET", "POST"])
+def get_user_info():
+    result = handler.get_user_info()
+    return result
+
+
 if __name__ == '__main__':
     app.run(debug=True)
