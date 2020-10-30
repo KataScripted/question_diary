@@ -161,5 +161,5 @@ class Controller:
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.get_user_info_dao(user=new_data[0])
+        result = database.get_random_users()
         return result

@@ -1,5 +1,5 @@
 import json
-
+import random
 import psycopg2
 
 
@@ -565,23 +565,38 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_user_info_dao(self, user):
+    def get_random_users(self):
         try:
             result = []
+            old_ids = []
+            ids = []
             self.cur.execute(
-                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user)
+                '''SELECT (user_id) FROM public."USERSQUESTION" '''
             )
-            id_querry = self.cur.fetchone()
-            self.cur.execute(
-                '''SELECT (name) FROM public."USER" WHERE username='{}';'''.format(user)
-            )
-            name_querry = self.cur.fetchone()
-            self.cur.execute(
-                '''SELECT (avatar) FROM public."USER" WHERE username='{}';'''.format(user)
-            )
-            avatar_querry = self.cur.fetchone()
-            for id, name, avatar in zip(id_querry, name_querry, avatar_querry):
-                result.append({"id":id, "name":name,"avatar":avatar})
+            id_querry = self.cur.fetchall()
+            for id_tuple in id_querry:
+                for id in id_tuple:
+                    old_ids.append(id)
+            for id in old_ids:
+                if id not in ids:
+                    ids.append(id)
+            for iter in range(3):
+                random_user = random.choice(ids)
+                self.cur.execute(
+                    '''SELECT (id) FROM public."USER" WHERE id='{}';'''.format(random_user)
+                )
+                user_id_querry = self.cur.fetchone()
+                self.cur.execute(
+                    '''SELECT (name) FROM public."USER" WHERE id='{}';'''.format(random_user)
+                )
+                user_name_querry = self.cur.fetchone()
+                self.cur.execute(
+                    '''SELECT (avatar) FROM public."USER" WHERE id='{}';'''.format(random_user)
+                )
+                user_avatar_querry = self.cur.fetchone()
+                ids.remove(random_user)
+                for id, name, avatar in zip(user_id_querry, user_name_querry, user_avatar_querry):
+                    result.append({"id":id,"name":name,"avatar":avatar})
             return json.dumps(result)
         finally:
             self.conn.close()
