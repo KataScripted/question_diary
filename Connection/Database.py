@@ -601,7 +601,8 @@ class Database:
             )
             your_user_quarry = self.cur.fetchone()
             for your_user in your_user_quarry:
-                ids.remove(your_user)
+                if your_user in ids:
+                    ids.remove(your_user)
             for iter in range(len(ids)):
                 random_user = random.choice(ids)
                 self.cur.execute(
