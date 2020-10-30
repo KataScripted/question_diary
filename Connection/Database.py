@@ -155,6 +155,8 @@ class Database:
             dates = []
             answers_d = []
             questions_ids = self.cur.fetchall()
+            if len(questions_ids) == 0:
+                return json.dumps(["No questions answered"])
             for question_id in questions_ids:
                 for id in question_id:
                     self.cur.execute(
@@ -565,7 +567,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_random_users(self):
+    def get_random_users_dao(self, username):
         try:
             result = []
             old_ids = []
@@ -580,7 +582,13 @@ class Database:
             for id in old_ids:
                 if id not in ids:
                     ids.append(id)
-            for iter in range(3):
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(username)
+            )
+            your_user_quarry = self.cur.fetchone()
+            for your_user in your_user_quarry:
+                ids.remove(your_user)
+            for iter in range(len(ids)):
                 random_user = random.choice(ids)
                 self.cur.execute(
                     '''SELECT (id) FROM public."USER" WHERE id='{}';'''.format(random_user)
