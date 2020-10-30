@@ -298,6 +298,7 @@ class Database:
                 self.cur.execute(
                     '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}';'''.format(question)
                 )
+
                 question_id_quarry = self.cur.fetchone()
                 for question_id in question_id_quarry:
                     self.cur.execute(
