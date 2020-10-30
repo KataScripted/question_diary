@@ -78,7 +78,7 @@ class Controller:
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.create_user_question_dao(user=new_data[0], question=new_data[1])
+        result = database.create_user_question_dao(user=new_data[0], question=new_data[1], answer=new_data[2])
         return result
 
     def insert_answer_to_users_question(self):

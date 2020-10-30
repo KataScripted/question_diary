@@ -1,5 +1,7 @@
+import datetime
 import json
 import random
+
 import psycopg2
 
 
@@ -279,8 +281,10 @@ class Database:
         finally:
             self.conn.close()
 
-    def create_user_question_dao(self, user, question):
+    def create_user_question_dao(self, user, question, answer):
         try:
+            date = datetime.datetime.now()
+            print(date)
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
@@ -290,6 +294,15 @@ class Database:
                     '''INSERT INTO public."USERSQUESTION"(question, user_id) VALUES('{}','{}');'''.format(question,
                                                                                                           user_id)
                 )
+                self.conn.commit()
+                self.cur.execute(
+                    '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}';'''.format(question)
+                )
+                question_id_quarry = self.cur.fetchone()
+                for question_id in question_id_quarry:
+                    self.cur.execute(
+                        '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
+                            user_id, question_id, answer, date))
                 self.conn.commit()
             return json.dumps(["Created"])
         finally:
@@ -604,7 +617,7 @@ class Database:
                 user_avatar_querry = self.cur.fetchone()
                 ids.remove(random_user)
                 for id, name, avatar in zip(user_id_querry, user_name_querry, user_avatar_querry):
-                    result.append({"id":id,"name":name,"avatar":avatar})
+                    result.append({"id": id, "name": name, "avatar": avatar})
             return json.dumps(result)
         finally:
             self.conn.close()
