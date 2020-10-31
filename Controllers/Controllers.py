@@ -109,28 +109,28 @@ class Controller:
         result = database.get_answers_on_users_question_dao(user=new_data[0])
         return result
 
-    def get_users_with_most_answered(self):
-        database = Database()
-        result = database.get_user_with_most_answered_questions_dao()
-        return result
-
-    def dayly_mood(self):
-        data = json.loads(request.data)
-        new_data = []
-        for i in data.values():
-            new_data.append(i)
-        database = Database()
-        result = database.set_dayly_mood_dao(user=new_data[0], mood=new_data[1], date=new_data[2])
-        return result
-
-    def get_mood_report(self):
-        data = json.loads(request.data)
-        new_data = []
-        for i in data.values():
-            new_data.append(i)
-        database = Database()
-        result = database.get_mood_report_dao(user=new_data[0])
-        return result
+    # def get_users_with_most_answered(self):
+    #     database = Database()
+    #     result = database.get_user_with_most_answered_questions_dao()
+    #     return result
+    #
+    # def dayly_mood(self):
+    #     data = json.loads(request.data)
+    #     new_data = []
+    #     for i in data.values():
+    #         new_data.append(i)
+    #     database = Database()
+    #     result = database.set_dayly_mood_dao(user=new_data[0], mood=new_data[1], date=new_data[2])
+    #     return result
+    #
+    # def get_mood_report(self):
+    #     data = json.loads(request.data)
+    #     new_data = []
+    #     for i in data.values():
+    #         new_data.append(i)
+    #     database = Database()
+    #     result = database.get_mood_report_dao(user=new_data[0])
+    #     return result
 
     def get_question_by_id_admin(self):
         data = json.loads(request.data)

@@ -80,22 +80,22 @@ def answered_on_users_question():
     return result
 
 
-@app.route('/top', methods=["GET", "POST"])
-def get_users_with_most_answered():
-    result = handler.get_users_with_most_answered()
-    return result
-
-
-@app.route('/mood', methods=["GET", "POST"])
-def set_dayly_mood():
-    result = handler.dayly_mood()
-    return result
-
-
-@app.route('/getmood', methods=["GET", "POST"])
-def get_dayly_mood():
-    result = handler.get_mood_report()
-    return result
+# @app.route('/top', methods=["GET", "POST"])
+# def get_users_with_most_answered():
+#     result = handler.get_users_with_most_answered()
+#     return result
+#
+#
+# @app.route('/mood', methods=["GET", "POST"])
+# def set_dayly_mood():
+#     result = handler.dayly_mood()
+#     return result
+#
+#
+# @app.route('/getmood', methods=["GET", "POST"])
+# def get_dayly_mood():
+#     result = handler.get_mood_report()
+#     return result
 
 
 @app.route('/questionbyidadmin', methods=["GET", "POST"])

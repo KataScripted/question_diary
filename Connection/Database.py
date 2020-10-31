@@ -346,18 +346,17 @@ class Database:
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
             user_id_querry = self.cur.fetchone()
-            if user_id_querry == None:
-                return json.dumps(["No questions"])
-            else:
-                for user_id in user_id_querry:
-                    self.cur.execute(
-                        '''SELECT (question) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
-                    )
-                    question_querry = self.cur.fetchall()
+            for user_id in user_id_querry:
+                self.cur.execute(
+                    '''SELECT (question) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
+                )
+                question_querry = self.cur.fetchall()
+                if len(question_querry) == 0:
+                    return json.dumps(["No questions"])
                 for question_tuple in question_querry:
                     for question in question_tuple:
                         result.append({"question": question})
-                return json.dumps(result)
+            return json.dumps(result)
         finally:
             self.conn.close()
 
