@@ -627,6 +627,7 @@ class Database:
         try:
             usernames = []
             avatars = []
+            names = []
             questions = []
             dates = []
             user_ids = []
@@ -672,8 +673,14 @@ class Database:
                     avatar_querry = self.cur.fetchone()
                     for avatar in avatar_querry:
                         avatars.append(avatar)
-                for username, avatar, question, date in zip(usernames, avatars, questions, dates):
-                    result.append({"username": username, "avatar": avatar, "question": question, "date": date})
+                    self.cur.execute(
+                        '''SELECT (name) FROM public."USER" WHERE id='{}';'''.format(user_id)
+                    )
+                    name_querry = self.cur.fetchone()
+                    for name in name_querry:
+                        names.append(name)
+                for username, name,  avatar, question, date in zip(usernames, names, avatars, questions, dates):
+                    result.append({"username": username,"name":name, "avatar": avatar, "question": question, "date": date})
             return json.dumps(result)
         finally:
             self.conn.close()
