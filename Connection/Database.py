@@ -283,16 +283,16 @@ class Database:
 
     def create_user_question_dao(self, user, question, answer):
         try:
-            date = datetime.datetime.now()
-            print(date)
+            date = datetime.datetime.now().date()
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
             user_id_querry = self.cur.fetchone()
             for user_id in user_id_querry:
                 self.cur.execute(
-                    '''INSERT INTO public."USERSQUESTION"(question, user_id) VALUES('{}','{}');'''.format(question,
-                                                                                                          user_id)
+                    '''INSERT INTO public."USERSQUESTION"(question, user_id, date) VALUES('{}','{}','{}');'''.format(
+                        question,
+                        user_id, date)
                 )
                 self.conn.commit()
                 self.cur.execute(
@@ -619,6 +619,61 @@ class Database:
                 ids.remove(random_user)
                 for username, name, avatar in zip(user_username_querry, user_name_querry, user_avatar_querry):
                     result.append({"username": username, "name": name, "avatar": avatar})
+            return json.dumps(result)
+        finally:
+            self.conn.close()
+
+    def feed_dao(self, username):
+        try:
+            usernames = []
+            avatars = []
+            questions = []
+            dates = []
+            user_ids = []
+            result = []
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(username)
+            )
+            ids = self.cur.fetchone()
+            for id in ids:
+                self.cur.execute(
+                    '''SELECT (question) FROM public."USERSQUESTION" WHERE NOT user_id='{}';'''.format(id)
+                )
+                questions_querry = self.cur.fetchall()
+                for q_tuple in questions_querry:
+                    for q in q_tuple:
+                        questions.append(q)
+                self.cur.execute(
+                    '''SELECT (date) FROM public."USERSQUESTION"'''
+                )
+                date_querry = self.cur.fetchall()
+                for d_tuple in date_querry:
+                    for d in d_tuple:
+                        dates.append(d)
+                self.cur.execute(
+                    '''SELECT (user_id) FROM public."USERSQUESTION"'''
+                )
+                id_querry = self.cur.fetchall()
+                for id_tuple in id_querry:
+                    for idd in id_tuple:
+                        user_ids.append(idd)
+                while id in user_ids:
+                    user_ids.remove(id)  # delete all occurrences of a user
+                for user_id in user_ids:
+                    self.cur.execute(
+                        '''SELECT (username) FROM public."USER" WHERE id='{}';'''.format(user_id)
+                    )
+                    username_querry = self.cur.fetchone()
+                    for username in username_querry:
+                        usernames.append(username)
+                    self.cur.execute(
+                        '''SELECT (avatar) FROM public."USER" WHERE id='{}';'''.format(user_id)
+                    )
+                    avatar_querry = self.cur.fetchone()
+                    for avatar in avatar_querry:
+                        avatars.append(avatar)
+                for username, avatar, question, date in zip(usernames, avatars, questions, dates):
+                    result.append({"username": username, "avatar": avatar, "question": question, "date": date})
             return json.dumps(result)
         finally:
             self.conn.close()

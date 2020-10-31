@@ -163,3 +163,12 @@ class Controller:
         database = Database()
         result = database.get_random_users_dao(username=new_data[0])
         return result
+
+    def feed(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.feed_dao(username=new_data[0])
+        return result

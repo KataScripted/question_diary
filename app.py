@@ -122,5 +122,11 @@ def get_user_info():
     return result
 
 
+@app.route('/feed', methods=["GET", "POST"])
+def feed():
+    result = handler.feed()
+    return result
+
+
 if __name__ == '__main__':
     app.run(debug=True)
