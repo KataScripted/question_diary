@@ -605,9 +605,9 @@ class Database:
             for iter in range(len(ids)):
                 random_user = random.choice(ids)
                 self.cur.execute(
-                    '''SELECT (id) FROM public."USER" WHERE id='{}';'''.format(random_user)
+                    '''SELECT (username) FROM public."USER" WHERE id='{}';'''.format(random_user)
                 )
-                user_id_querry = self.cur.fetchone()
+                user_username_querry = self.cur.fetchone()
                 self.cur.execute(
                     '''SELECT (name) FROM public."USER" WHERE id='{}';'''.format(random_user)
                 )
@@ -617,8 +617,8 @@ class Database:
                 )
                 user_avatar_querry = self.cur.fetchone()
                 ids.remove(random_user)
-                for id, name, avatar in zip(user_id_querry, user_name_querry, user_avatar_querry):
-                    result.append({"id": id, "name": name, "avatar": avatar})
+                for username, name, avatar in zip(user_username_querry, user_name_querry, user_avatar_querry):
+                    result.append({"username": username, "name": name, "avatar": avatar})
             return json.dumps(result)
         finally:
             self.conn.close()
