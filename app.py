@@ -20,7 +20,7 @@ def insert_answer1():
     return result
 
 
-@app.route('/questions', methods=["GET"])
+@app.route('/questions', methods=["GET", "POST"])
 def get_all_questions():
     result = handler.get_all_questions()
     return result
@@ -32,7 +32,7 @@ def answered():
     return result
 
 
-@app.route('/notification', methods=["GET"])
+@app.route('/notification', methods=["GET", "POST"])
 def get_users_for_notification():
     result = handler.get_users_for_notification()
     return result

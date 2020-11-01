@@ -384,13 +384,13 @@ class Database:
                     questions.append(id_of_question)
             for user_id in users:
                 self.cur.execute(
-                    '''SELECT (answer) FROM public."ANSWER" WHERE user_id='{}';'''.format(user_id)
+                    '''SELECT (answer) FROM public."USERS_QUESTION_ANSWER" WHERE user_id='{}';'''.format(user_id)
                 )
                 answers1 = self.cur.fetchall()
                 for answer1 in answers1:
                     answers.append(answer1)
                 self.cur.execute(
-                    '''SELECT (datee) FROM public."ANSWER" WHERE user_id='{}';'''.format(user_id)
+                    '''SELECT (date) FROM public."USERS_QUESTION_ANSWER" WHERE user_id='{}';'''.format(user_id)
                 )
                 dates1 = self.cur.fetchall()
                 for date1 in dates1:
