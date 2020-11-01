@@ -79,6 +79,10 @@ def answered_on_users_question():
     result = handler.answered_on_users_question()
     return result
 
+@app.route('/allanswersusers', methods=["GET", "POST"])
+def get_all_answers_on_users_question():
+    result = handler.get_all_answers_on_users_question()
+    return result
 
 # @app.route('/top', methods=["GET", "POST"])
 # def get_users_with_most_answered():

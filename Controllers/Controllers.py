@@ -109,6 +109,15 @@ class Controller:
         result = database.get_answers_on_users_question_dao(user=new_data[0])
         return result
 
+    def get_all_answers_on_users_question(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.get_all_answers_on_users_question(user=new_data[0], question=new_data[1])
+        return result
+
     # def get_users_with_most_answered(self):
     #     database = Database()
     #     result = database.get_user_with_most_answered_questions_dao()
