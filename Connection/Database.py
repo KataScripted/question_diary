@@ -768,3 +768,28 @@ class Database:
             return json.dumps(result)
         finally:
             self.conn.close()
+
+    def get_questions_by_category_dao(self, category):
+        try:
+            questions = []
+            ids = []
+            result = []
+            self.cur.execute(
+                '''SELECT (question) FROM public."QUESTION" WHERE category='{}';'''.format(category)
+            )
+            questions_question = self.cur.fetchall()
+            for question_tuple in questions_question:
+                for question in question_tuple:
+                    questions.append(question)
+            self.cur.execute(
+                '''SELECT (id) FROM public."QUESTION" WHERE category='{}';'''.format(category)
+            )
+            ids_question = self.cur.fetchall()
+            for id_tuple in ids_question:
+                for id in id_tuple:
+                    ids.append(id)
+            for id, question in zip(ids, questions):
+                result.append({"id": id, "question": question})
+            return json.dumps(result)
+        finally:
+            self.conn.close()

@@ -14,7 +14,8 @@ class Controller:
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.insert_user_dao(user=new_data[0], notification=new_data[1], avatar=new_data[2], name=new_data[3])
+        result = database.insert_user_dao(user=new_data[0], notification=new_data[1], avatar=new_data[2],
+                                          name=new_data[3])
         return result
 
     def insert_answer(self):
@@ -23,7 +24,8 @@ class Controller:
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.insert_answer_dao(user=new_data[0], question=new_data[1], answer=new_data[2], date=new_data[3])
+        result = database.insert_answer_dao(user=new_data[0], question=new_data[1], answer=new_data[2],
+                                            date=new_data[3])
         return result
 
     def get_all_questions(self):
@@ -87,7 +89,8 @@ class Controller:
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.insert_answer_to_users_question_dao(user=new_data[0], question=new_data[1], answer=new_data[2],
+        result = database.insert_answer_to_users_question_dao(user=new_data[0], question=new_data[1],
+                                                              answer=new_data[2],
                                                               date=new_data[3])
         return result
 
@@ -180,4 +183,13 @@ class Controller:
             new_data.append(i)
         database = Database()
         result = database.feed_dao(username=new_data[0])
+        return result
+
+    def get_question_by_category(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.get_questions_by_category_dao(category=new_data[0])
         return result

@@ -79,10 +79,12 @@ def answered_on_users_question():
     result = handler.answered_on_users_question()
     return result
 
+
 @app.route('/allanswersusers', methods=["GET", "POST"])
 def get_all_answers_on_users_question():
     result = handler.get_all_answers_on_users_question()
     return result
+
 
 # @app.route('/top', methods=["GET", "POST"])
 # def get_users_with_most_answered():
@@ -129,6 +131,12 @@ def get_user_info():
 @app.route('/feed', methods=["GET", "POST"])
 def feed():
     result = handler.feed()
+    return result
+
+
+@app.route('/questionbycategory', methods=["GET", "POST"])
+def question_by_category():
+    result = handler.get_question_by_category()
     return result
 
 
