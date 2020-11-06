@@ -778,6 +778,7 @@ class Database:
         try:
             id_answered_questions = []
             answered_questions = []
+            answers = []
             date_answered = []
             questions = []
             ids = []
@@ -824,13 +825,21 @@ class Database:
                     if date_anwered_querry != None:
                         for dt in date_anwered_querry:
                             date_answered.append(dt)
+                    self.cur.execute(
+                        '''SELECT (answer) FROM public."ANSWER" WHERE user_id='{}' AND question_id='{}';'''.format(
+                            user_id, id_q)
+                    )
+                    answer_anwered_querry = self.cur.fetchone()
+                    if answer_anwered_querry != None:
+                        for a in answer_anwered_querry:
+                            answers.append(a)
             for item in id_answered_questions:
                 ids.remove(item)
             for item in answered_questions:
                 questions.remove(item)
 
-            for id, question, date in zip(id_answered_questions, answered_questions, date_answered):
-                result.append({"id":id, "question":question, "isAnswered":True, "date":str(date)})
+            for id, question, answer, date in zip(id_answered_questions, answered_questions, answers, date_answered):
+                result.append({"id":id, "question":question, "isAnswered":True, "answer":answer, "date":str(date)})
             for id, question in zip(ids, questions):
                 result.append({"id": id, "question": question, "isAnswered":False})
             return json.dumps(result)
