@@ -774,8 +774,11 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_questions_by_category_dao(self, category):
+    def get_questions_by_category_dao(self, user, category):
         try:
+            id_answered_questions = []
+            answered_questions = []
+            date_answered = []
             questions = []
             ids = []
             result = []
@@ -793,8 +796,43 @@ class Database:
             for id_tuple in ids_question:
                 for id in id_tuple:
                     ids.append(id)
+
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user)
+            )
+            user_id_querry = self.cur.fetchone()
+            for user_id in user_id_querry:
+                for id_q in ids:
+                    self.cur.execute(
+                        '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}' AND question_id='{}';'''.format(user_id, id_q)
+                    )
+                    id_anwered_querry = self.cur.fetchone()
+                    if id_anwered_querry != None:
+                        for id_answered_q in id_anwered_querry:
+                            id_answered_questions.append(id_answered_q)
+                            self.cur.execute(
+                                '''SELECT (question) FROM public."QUESTION" WHERE id='{}';'''.format(id_answered_q)
+                            )
+                            question_answered_querry = self.cur.fetchone()
+                            for q in question_answered_querry:
+                                answered_questions.append(q)
+                    self.cur.execute(
+                        '''SELECT (datee) FROM public."ANSWER" WHERE user_id='{}' AND question_id='{}';'''.format(
+                            user_id, id_q)
+                    )
+                    date_anwered_querry = self.cur.fetchone()
+                    if date_anwered_querry != None:
+                        for dt in date_anwered_querry:
+                            date_answered.append(dt)
+            for item in id_answered_questions:
+                ids.remove(item)
+            for item in answered_questions:
+                questions.remove(item)
+
+            for id, question, date in zip(id_answered_questions, answered_questions, date_answered):
+                result.append({"id":id, "question":question, "isAnswered":True, "date":str(date)})
             for id, question in zip(ids, questions):
-                result.append({"id": id, "question": question})
+                result.append({"id": id, "question": question, "isAnswered":False})
             return json.dumps(result)
         finally:
             self.conn.close()
