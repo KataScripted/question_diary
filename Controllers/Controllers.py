@@ -194,3 +194,12 @@ class Controller:
         database = Database()
         result = database.get_questions_by_category_dao(user=new_data[0], category=new_data[1])
         return result
+
+    def update_answer(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.update_answer_dao(answerID=new_data[0], newAnswer=new_data[1])
+        return result

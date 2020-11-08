@@ -139,6 +139,11 @@ def question_by_category():
     result = handler.get_question_by_category()
     return result
 
+@app.route('/updateanswer', methods=["GET", "POST"])
+def update_answer():
+    result = handler.update_answer()
+    return result
+
 
 if __name__ == '__main__':
     app.run(debug=True)

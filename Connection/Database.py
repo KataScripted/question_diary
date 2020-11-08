@@ -933,5 +933,13 @@ class Database:
         finally:
             self.conn.close()
 
-
+    def update_answer_dao(self, answerID, newAnswer):
+        try:
+            self.cur.execute(
+                '''UPDATE public."ANSWER" SET answer='{}' WHERE id='{}';'''.format(newAnswer, answerID)
+            )
+            self.conn.commit()
+            return json.dumps(["Updated"])
+        finally:
+            self.conn.close()
 
