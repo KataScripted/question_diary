@@ -131,8 +131,7 @@ class Database:
                 questions_text = self.cur.fetchall()
                 for q in questions_text:
                     question_text.append(q)
-            length = len(question_text)
-            for question_tuple, answer_tuple, id in zip(question_text, answers, range(length)):
+            for question_tuple, answer_tuple, id in zip(question_text, answers, questions):
                 for question1, answer1 in zip(question_tuple, answer_tuple):
                     answers_d.append({"id": id, "question": question1, "answer": answer1})
             if bool(answers_d):
@@ -669,8 +668,8 @@ class Database:
                 creator_querry = self.cur.fetchone()
                 for i in creator_querry:
                     creators.append(i)
-            for question, creator in zip(q_querry, creators):
-                result.append({"question": question, "creator":creator})
+            for question, creator in zip(q_querry, creator_querry):
+                result.append({"question": question, "creator": creator})
             return json.dumps(result)
         finally:
             self.conn.close()
@@ -750,6 +749,7 @@ class Database:
             avatars = []
             names = []
             questions = []
+            questions_ids = []
             dates = []
             user_ids = []
             result = []
@@ -765,6 +765,13 @@ class Database:
                 for q_tuple in questions_querry:
                     for q in q_tuple:
                         questions.append(q)
+                self.cur.execute(
+                    '''SELECT (id) FROM public."USERSQUESTION" WHERE NOT user_id='{}';'''.format(id)
+                )
+                questions_id_querry = self.cur.fetchall()
+                for q_tuple in questions_id_querry:
+                    for q in q_tuple:
+                        questions_ids.append(q)
                 self.cur.execute(
                     '''SELECT (date) FROM public."USERSQUESTION"'''
                 )
@@ -803,10 +810,12 @@ class Database:
             for i in range(len(questions)):
                 index = questions.index(random.choice(questions))
                 result.append({"username": usernames[index], "name": names[index], "avatar": avatars[index],
-                               "question": questions[index], "date": dates[index]})
+                               "idOfQuestion": questions_ids[index], "question": questions[index],
+                               "date": dates[index]})
                 usernames.remove(usernames[index])
                 names.remove(names[index])
                 avatars.remove(avatars[index])
+                questions_ids.remove(questions_ids[index])
                 questions.remove(questions[index])
                 dates.remove(dates[index])
             return json.dumps(result)
