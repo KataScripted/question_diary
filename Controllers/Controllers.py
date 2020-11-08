@@ -91,7 +91,8 @@ class Controller:
         database = Database()
         result = database.insert_answer_to_users_question_dao(user=new_data[0], question=new_data[1],
                                                               answer=new_data[2],
-                                                              date=new_data[3])
+                                                              date=new_data[3],
+                                                              creator=new_data[4])
         return result
 
     def question_by_user(self):
@@ -118,7 +119,7 @@ class Controller:
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.get_all_answers_on_users_question(user=new_data[0], question=new_data[1])
+        result = database.get_all_answers_on_users_question_dao(user=new_data[0], question=new_data[1], creator=new_data[2])
         return result
 
     # def get_users_with_most_answered(self):

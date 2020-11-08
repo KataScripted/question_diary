@@ -320,33 +320,38 @@ class Database:
         finally:
             self.conn.close()
 
-    def insert_answer_to_users_question_dao(self, user, question, answer, date):
+    def insert_answer_to_users_question_dao(self, user, question, answer, date, creator):
         try:
             if answer == "":
                 result = ["No"]
                 return json.dumps(result)
             else:
                 self.cur.execute(
-                    '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
+                    '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(creator)
                 )
-                row1 = self.cur.fetchone()
-                username_id = 0
-                for row in row1:
-                    username_id = row
+                creator_id_querry = self.cur.fetchone()
+                for creator_id in creator_id_querry:
+                    self.cur.execute(
+                        '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
+                    )
+                    row1 = self.cur.fetchone()
+                    username_id = 0
+                    for row in row1:
+                        username_id = row
 
-                self.cur.execute(
-                    '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}';'''.format(question, )
-                )
-                row2 = self.cur.fetchone()
-                question_id = 0
-                for row in row2:
-                    question_id = row
-                self.cur.execute(
-                    '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
-                        username_id, question_id, answer, date)
-                )
-                self.conn.commit()
-                return json.dumps(["Done"])
+                    self.cur.execute(
+                        '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}' AND user_id='{}';'''.format(question, creator_id)
+                    )
+                    row2 = self.cur.fetchone()
+                    question_id = 0
+                    for row in row2:
+                        question_id = row
+                    self.cur.execute(
+                        '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
+                            username_id, question_id, answer, date)
+                    )
+                    self.conn.commit()
+                    return json.dumps(["Done"])
         finally:
             self.conn.close()
 
@@ -442,7 +447,7 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_all_answers_on_users_question(self, user, question):
+    def get_all_answers_on_users_question_dao(self, user, question, creator):
         try:
             result_d = []
             answers = []
@@ -452,12 +457,16 @@ class Database:
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
             )
             user_ids = self.cur.fetchone()
-            for iid in user_ids:
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(creator, )
+            )
+            creator_ids = self.cur.fetchone()
+            for iid, creator_id in zip(user_ids, creator_ids):
                 self.cur.execute(
-                    '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}';'''.format(question, )
+                    '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}' AND user_id='{}';'''.format(question, creator_id)
                 )
-                question_ids = self.cur.fetchone()
-                for question_id in question_ids:
+                questions_id_querry = self.cur.fetchone()
+                for question_id in questions_id_querry:
                     self.cur.execute(
                         '''SELECT (answer) FROM public."USERS_QUESTION_ANSWER" WHERE question_id='{}' AND user_id='{}';'''.format(
                             question_id, iid)
