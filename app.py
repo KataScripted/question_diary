@@ -32,10 +32,10 @@ def answered():
     return result
 
 
-@app.route('/notification', methods=["GET", "POST"])
-def get_users_for_notification():
-    result = handler.get_users_for_notification()
-    return result
+# @app.route('/notification', methods=["GET", "POST"])
+# def get_users_for_notification():
+#     result = handler.get_users_for_notification()
+#     return result
 
 
 @app.route('/questionbydate', methods=["GET", "POST"])

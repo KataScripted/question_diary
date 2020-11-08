@@ -44,30 +44,30 @@ class Database:
         finally:
             self.conn.close()
 
-    def get_users_for_notification_dao(self):
-        try:
-            result = []
-            self.cur.execute(
-                '''SELECT (username) FROM public."USER" WHERE notification=True'''
-            )
-            users = self.cur.fetchall()
-            self.cur.execute(
-                '''SELECT (id) FROM public."USER" WHERE notification=True'''
-            )
-            ids = self.cur.fetchall()
-            new_users = []
-            for users1 in users:
-                for user in users1:
-                    new_users.append(user)
-            new_ids = []
-            for ids1 in ids:
-                for id in ids1:
-                    new_ids.append(id)
-            for id, username in zip(new_ids, new_users):
-                result.append({"id": id, "username": username})
-            return json.dumps(result)
-        finally:
-            self.conn.close()
+    # def get_users_for_notification_dao(self):
+    #     try:
+    #         result = []
+    #         self.cur.execute(
+    #             '''SELECT (username) FROM public."USER" WHERE notification=True'''
+    #         )
+    #         users = self.cur.fetchall()
+    #         self.cur.execute(
+    #             '''SELECT (id) FROM public."USER" WHERE notification=True'''
+    #         )
+    #         ids = self.cur.fetchall()
+    #         new_users = []
+    #         for users1 in users:
+    #             for user in users1:
+    #                 new_users.append(user)
+    #         new_ids = []
+    #         for ids1 in ids:
+    #             for id in ids1:
+    #                 new_ids.append(id)
+    #         for id, username in zip(new_ids, new_users):
+    #             result.append({"id": id, "username": username})
+    #         return json.dumps(result)
+    #     finally:
+    #         self.conn.close()
 
     def insert_answer_dao(self, user, question, answer, date):
         try:
@@ -124,6 +124,12 @@ class Database:
                                                                                                          date)
                 )
             answers = self.cur.fetchall()
+            for user_id in users:
+                self.cur.execute(
+                    '''SELECT (id) FROM public."ANSWER" WHERE user_id='{}' AND datee='{}';'''.format(user_id,
+                                                                                                         date)
+                )
+            answer_ids = self.cur.fetchall()
             for q_id in questions:
                 self.cur.execute(
                     '''SELECT (question) FROM public."QUESTION" WHERE id='{}';'''.format(q_id, )
@@ -131,9 +137,9 @@ class Database:
                 questions_text = self.cur.fetchall()
                 for q in questions_text:
                     question_text.append(q)
-            for question_tuple, answer_tuple, id in zip(question_text, answers, questions):
-                for question1, answer1 in zip(question_tuple, answer_tuple):
-                    answers_d.append({"id": id, "question": question1, "answer": answer1})
+            for question_tuple, answer_tuple, id, answer_id_tuple in zip(question_text, answers, questions, answer_ids):
+                for question1, answer1, answerID in zip(question_tuple, answer_tuple, answer_id_tuple):
+                    answers_d.append({"id": id, "question": question1, "answerID":answerID, "answer": answer1})
             if bool(answers_d):
                 return json.dumps(answers_d)
             else:
@@ -144,6 +150,7 @@ class Database:
     def get_answered_questions_dao(self, user):
         try:
             q_ids = []
+            a_ids = []
             questions = []
             answers = []
             dates = []
@@ -163,6 +170,14 @@ class Database:
                         if question_id not in q_ids:
                             q_ids.append(question_id)
                 for q_id in q_ids:
+                    self.cur.execute(
+                        '''SELECT id FROM public."ANSWER" WHERE user_id='{}' AND question_id='{}' ORDER BY datee DESC FETCH FIRST ROW ONLY'''.format(
+                            user_id, q_id)
+                    )
+                    last_id_answer = self.cur.fetchall()
+                    for last_id_tuple in last_id_answer:
+                        for last in last_id_tuple:
+                            a_ids.append(last)
                     self.cur.execute(
                         '''SELECT answer FROM public."ANSWER" WHERE user_id='{}' AND question_id='{}' ORDER BY datee DESC FETCH FIRST ROW ONLY'''.format(
                             user_id, q_id)
@@ -185,8 +200,8 @@ class Database:
                     question_querry = self.cur.fetchone()
                     for question in question_querry:
                         questions.append(question)
-            for question, answer, date, id in zip(questions, answers, dates, q_ids):
-                result.append({"id": id, "question": question, "answer": answer, "date": str(date)})
+            for question, answer, date, id, answerID in zip(questions, answers, dates, q_ids, a_ids):
+                result.append({"id": id, "question": question,"answerID":answerID, "answer": answer, "date": str(date)})
             return json.dumps(result)
         finally:
             self.conn.close()
@@ -263,6 +278,7 @@ class Database:
                 )
                 question_ids = self.cur.fetchone()
                 for question_id in question_ids:
+
                     self.cur.execute(
                         '''SELECT (answer) FROM public."ANSWER" WHERE question_id='{}' AND user_id='{}';'''.format(
                             question_id, iid)
@@ -286,7 +302,7 @@ class Database:
                         ids.append(id)
             for date_tuple, answer_tuple, id_tuple in zip(dates, answers, ids):
                 for date1, answer1, id in zip(date_tuple, answer_tuple, id_tuple):
-                    result_d.append({"id": id, "answer": answer1, "date": str(date1)})
+                    result_d.append({"answerID": id, "answer": answer1, "date": str(date1)})
             return json.dumps(result_d)
         finally:
             self.conn.close()
@@ -387,7 +403,7 @@ class Database:
     def get_answers_on_users_question_dao(self, user):
         try:
             q_ids = []
-            u_ids = []
+            a_ids = []
             questions = []
             answers = []
             dates = []
@@ -410,7 +426,14 @@ class Database:
                         if question_id not in q_ids:
                             q_ids.append(question_id)
                 for q_id in q_ids:
-
+                    self.cur.execute(
+                        '''SELECT id FROM public."USERS_QUESTION_ANSWER" WHERE user_id='{}' AND question_id='{}' ORDER BY date DESC FETCH FIRST ROW ONLY'''.format(
+                            user_id, q_id)
+                    )
+                    last_id_answer = self.cur.fetchall()
+                    for last_id_tuple in last_id_answer:
+                        for last in last_id_tuple:
+                            a_ids.append(last)
                     self.cur.execute(
                         '''SELECT answer FROM public."USERS_QUESTION_ANSWER" WHERE user_id='{}' AND question_id='{}' ORDER BY date DESC FETCH FIRST ROW ONLY'''.format(
                             user_id, q_id)
@@ -456,10 +479,11 @@ class Database:
                         username_querry = self.cur.fetchone()
                         for username in username_querry:
                             usernames.append(username)
-            for question, answer, date, id, name, avatar, username in zip(questions, answers, dates, q_ids, names,
+            for question, answer, answerID, date, id, name, avatar, username in zip(questions, answers, a_ids, dates, q_ids, names,
                                                                           avatars, usernames):
                 result.append(
                     {"id": id, "userUsername": username, "userName": name, "userAvatar": avatar, "question": question,
+                     "answerID":answerID,
                      "answer": answer,
                      "date": str(date)})
             return json.dumps(result)
@@ -510,7 +534,7 @@ class Database:
                         ids.append(id)
             for date_tuple, answer_tuple, id_tuple in zip(dates, answers, ids):
                 for date1, answer1, id in zip(date_tuple, answer_tuple, id_tuple):
-                    result_d.append({"id": id, "answer": answer1, "date": str(date1)})
+                    result_d.append({"answerID": id, "answer": answer1, "date": str(date1)})
             return json.dumps(result_d)
         finally:
             self.conn.close()
@@ -831,6 +855,7 @@ class Database:
             id_answered_questions = []
             answered_questions = []
             answers = []
+            id_answers = []
             date_answered = []
             questions = []
             ids = []
@@ -886,15 +911,27 @@ class Database:
                     if answer_anwered_querry != None:
                         for a in answer_anwered_querry:
                             answers.append(a)
+                    self.cur.execute(
+                        '''SELECT (id) FROM public."ANSWER" WHERE user_id='{}' AND question_id='{}';'''.format(
+                            user_id, id_q)
+                    )
+                    id_of_answers_querry = self.cur.fetchone()
+                    if id_of_answers_querry != None:
+                        for a in id_of_answers_querry:
+                            id_answers.append(a)
+
             for item in id_answered_questions:
                 ids.remove(item)
             for item in answered_questions:
                 questions.remove(item)
 
-            for id, question, answer, date in zip(id_answered_questions, answered_questions, answers, date_answered):
-                result.append({"id": id, "question": question, "isAnswered": True, "answer": answer, "date": str(date)})
+            for id, question, answer, date, answerID in zip(id_answered_questions, answered_questions, answers, date_answered, id_answers):
+                result.append({"id": id, "question": question, "isAnswered": True, "answerID":answerID, "answer": answer, "date": str(date)})
             for id, question in zip(ids, questions):
                 result.append({"id": id, "question": question, "isAnswered": False})
             return json.dumps(result)
         finally:
             self.conn.close()
+
+
+

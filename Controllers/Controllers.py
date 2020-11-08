@@ -42,10 +42,10 @@ class Controller:
         result = database.get_answered_questions_dao(user=new_data[0])
         return result
 
-    def get_users_for_notification(self):
-        database = Database()
-        result = database.get_users_for_notification_dao()
-        return result
+    # def get_users_for_notification(self):
+    #     database = Database()
+    #     result = database.get_users_for_notification_dao()
+    #     return result
 
     def get_question_by_date(self):
         data = json.loads(request.data)
