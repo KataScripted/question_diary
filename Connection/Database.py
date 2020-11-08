@@ -653,6 +653,7 @@ class Database:
     def get_question_by_id_user_dao(self, id):
         try:
             result = []
+            creators = []
             self.cur.execute(
                 '''SELECT (question) FROM public."USERSQUESTION" WHERE id='{}';'''.format(id)
             )
@@ -661,7 +662,14 @@ class Database:
                 '''SELECT (user_id) FROM public."USERSQUESTION" WHERE id='{}';'''.format(id)
             )
             c_querry = self.cur.fetchone()
-            for question, creator in zip(q_querry, c_querry):
+            for c_id in c_querry:
+                self.cur.execute(
+                    '''SELECT (username) FROM public."USER" WHERE id='{}';'''.format(c_id)
+                )
+                creator_querry = self.cur.fetchone()
+                for i in creator_querry:
+                    creators.append(i)
+            for question, creator in zip(q_querry, creators):
                 result.append({"question": question, "creator":creator})
             return json.dumps(result)
         finally:
