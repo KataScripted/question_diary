@@ -668,7 +668,7 @@ class Database:
                 creator_querry = self.cur.fetchone()
                 for i in creator_querry:
                     creators.append(i)
-            for question, creator in zip(q_querry, creator_querry):
+            for question, creator in zip(q_querry, creators):
                 result.append({"question": question, "creator": creator})
             return json.dumps(result)
         finally:
