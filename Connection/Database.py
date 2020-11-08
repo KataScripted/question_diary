@@ -340,7 +340,8 @@ class Database:
                         username_id = row
 
                     self.cur.execute(
-                        '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}' AND user_id='{}';'''.format(question, creator_id)
+                        '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}' AND user_id='{}';'''.format(
+                            question, creator_id)
                     )
                     row2 = self.cur.fetchone()
                     question_id = 0
@@ -369,9 +370,13 @@ class Database:
                 question_querry = self.cur.fetchall()
                 if len(question_querry) == 0:
                     return json.dumps(["No questions"])
-                for question_tuple in question_querry:
-                    for question in question_tuple:
-                        result.append({"question": question})
+                self.cur.execute(
+                    '''SELECT (date) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
+                )
+                date_querry = self.cur.fetchall()
+                for question_tuple, date_tuple in zip(question_querry, date_querry):
+                    for question, date in zip(question_tuple, date_tuple):
+                        result.append({"question": question, "date": str(date)})
             return json.dumps(result)
         finally:
             self.conn.close()
@@ -385,6 +390,7 @@ class Database:
             dates = []
             names = []
             avatars = []
+            usernames = []
             result = []
             self.cur.execute(
                 '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(user, )
@@ -401,6 +407,7 @@ class Database:
                         if question_id not in q_ids:
                             q_ids.append(question_id)
                 for q_id in q_ids:
+
                     self.cur.execute(
                         '''SELECT answer FROM public."USERS_QUESTION_ANSWER" WHERE user_id='{}' AND question_id='{}' ORDER BY date DESC FETCH FIRST ROW ONLY'''.format(
                             user_id, q_id)
@@ -440,9 +447,18 @@ class Database:
                         avatar_querry = self.cur.fetchone()
                         for avatar in avatar_querry:
                             avatars.append(avatar)
-            for question, answer, date, id, name, avatar in zip(questions, answers, dates, q_ids, names, avatars):
-                result.append({"id": id, "userName": name, "userAvatar": avatar, "question": question, "answer": answer,
-                               "date": str(date)})
+                        self.cur.execute(
+                            '''SELECT (username) FROM public."USER" WHERE id='{}';'''.format(user_idd)
+                        )
+                        username_querry = self.cur.fetchone()
+                        for username in username_querry:
+                            usernames.append(username)
+            for question, answer, date, id, name, avatar, username in zip(questions, answers, dates, q_ids, names,
+                                                                          avatars, usernames):
+                result.append(
+                    {"id": id, "userUsername": username, "userName": name, "userAvatar": avatar, "question": question,
+                     "answer": answer,
+                     "date": str(date)})
             return json.dumps(result)
         finally:
             self.conn.close()
@@ -463,7 +479,8 @@ class Database:
             creator_ids = self.cur.fetchone()
             for iid, creator_id in zip(user_ids, creator_ids):
                 self.cur.execute(
-                    '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}' AND user_id='{}';'''.format(question, creator_id)
+                    '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}' AND user_id='{}';'''.format(question,
+                                                                                                               creator_id)
                 )
                 questions_id_querry = self.cur.fetchone()
                 for question_id in questions_id_querry:
@@ -773,7 +790,8 @@ class Database:
                         names.append(name)
             for i in range(len(questions)):
                 index = questions.index(random.choice(questions))
-                result.append({"username": usernames[index], "name": names[index], "avatar": avatars[index], "question": questions[index], "date": dates[index]})
+                result.append({"username": usernames[index], "name": names[index], "avatar": avatars[index],
+                               "question": questions[index], "date": dates[index]})
                 usernames.remove(usernames[index])
                 names.remove(names[index])
                 avatars.remove(avatars[index])
@@ -814,7 +832,8 @@ class Database:
             for user_id in user_id_querry:
                 for id_q in ids:
                     self.cur.execute(
-                        '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}' AND question_id='{}';'''.format(user_id, id_q)
+                        '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}' AND question_id='{}';'''.format(
+                            user_id, id_q)
                     )
                     id_anwered_querry = self.cur.fetchone()
                     if id_anwered_querry != None:
@@ -848,9 +867,9 @@ class Database:
                 questions.remove(item)
 
             for id, question, answer, date in zip(id_answered_questions, answered_questions, answers, date_answered):
-                result.append({"id":id, "question":question, "isAnswered":True, "answer":answer, "date":str(date)})
+                result.append({"id": id, "question": question, "isAnswered": True, "answer": answer, "date": str(date)})
             for id, question in zip(ids, questions):
-                result.append({"id": id, "question": question, "isAnswered":False})
+                result.append({"id": id, "question": question, "isAnswered": False})
             return json.dumps(result)
         finally:
             self.conn.close()
