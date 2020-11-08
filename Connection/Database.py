@@ -367,15 +367,19 @@ class Database:
                     '''SELECT (question) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
                 )
                 question_querry = self.cur.fetchall()
+                self.cur.execute(
+                    '''SELECT (id) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
+                )
+                ids_querry = self.cur.fetchall()
                 if len(question_querry) == 0:
                     return json.dumps(["No questions"])
                 self.cur.execute(
                     '''SELECT (date) FROM public."USERSQUESTION" WHERE user_id='{}';'''.format(user_id, )
                 )
                 date_querry = self.cur.fetchall()
-                for question_tuple, date_tuple in zip(question_querry, date_querry):
-                    for question, date in zip(question_tuple, date_tuple):
-                        result.append({"question": question, "date": str(date)})
+                for id_tuple, question_tuple, date_tuple in zip(ids_querry, question_querry, date_querry):
+                    for id, question, date in zip(id_tuple, question_tuple, date_tuple):
+                        result.append({"id": id, "question": question, "date": str(date)})
             return json.dumps(result)
         finally:
             self.conn.close()
