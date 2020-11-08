@@ -657,8 +657,12 @@ class Database:
                 '''SELECT (question) FROM public."USERSQUESTION" WHERE id='{}';'''.format(id)
             )
             q_querry = self.cur.fetchone()
-            for question in q_querry:
-                result.append({"question": question})
+            self.cur.execute(
+                '''SELECT (user_id) FROM public."USERSQUESTION" WHERE id='{}';'''.format(id)
+            )
+            c_querry = self.cur.fetchone()
+            for question, creator in zip(q_querry, c_querry):
+                result.append({"question": question, "creator":creator})
             return json.dumps(result)
         finally:
             self.conn.close()
