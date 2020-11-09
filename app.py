@@ -149,6 +149,16 @@ def update_answer_user():
     result = handler.update_answer_user()
     return result
 
+@app.route('/deleteanswer', methods=["GET", "POST"])
+def delete_answer():
+    result = handler.delete_answer()
+    return result
+
+@app.route('/deleteanswerusers', methods=["GET", "POST"])
+def delete_answer_user():
+    result = handler.delete_answer_users()
+    return result
+
 
 if __name__ == '__main__':
     app.run(debug=True)

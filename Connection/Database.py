@@ -953,3 +953,22 @@ class Database:
         finally:
             self.conn.close()
 
+    def delete_answer_dao(self, answerID):
+        try:
+            self.cur.execute(
+                '''DELETE FROM public."ANSWER" WHERE id='{}';'''.format(answerID)
+            )
+            self.conn.commit()
+            return json.dumps(["Deleted"])
+        finally:
+            self.conn.close()
+
+    def delete_answer_users_dao(self, answerID):
+        try:
+            self.cur.execute(
+                '''DELETE FROM public."USERS_QUESTION_ANSWER" WHERE id='{}';'''.format(answerID)
+            )
+            self.conn.commit()
+            return json.dumps(["Deleted"])
+        finally:
+            self.conn.close()
