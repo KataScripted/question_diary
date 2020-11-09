@@ -144,6 +144,11 @@ def update_answer():
     result = handler.update_answer()
     return result
 
+@app.route('/updateanswerusers', methods=["GET", "POST"])
+def update_answer_user():
+    result = handler.update_answer_user()
+    return result
+
 
 if __name__ == '__main__':
     app.run(debug=True)
