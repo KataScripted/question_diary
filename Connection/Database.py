@@ -807,15 +807,13 @@ class Database:
                 for d_tuple in date_querry:
                     for d in d_tuple:
                         dates.append(d)
-                self.cur.execute(
-                    '''SELECT (user_id) FROM public."USERSQUESTION"'''
-                )
-                id_querry = self.cur.fetchall()
-                for id_tuple in id_querry:
-                    for idd in id_tuple:
-                        user_ids.append(idd)
-                while id in user_ids:
-                    user_ids.remove(id)  # delete all occurrences of a user
+                for q_id in questions_ids:
+                    self.cur.execute(
+                        '''SELECT user_id FROM public."USERSQUESTION" WHERE id='{}';'''.format(q_id)
+                    )
+                    querry = self.cur.fetchone()
+                    for u_id in querry:
+                        user_ids.append(u_id)
                 for user_id in user_ids:
                     self.cur.execute(
                         '''SELECT (username) FROM public."USER" WHERE id='{}';'''.format(user_id)
