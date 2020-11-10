@@ -834,16 +834,9 @@ class Database:
                     for name in name_querry:
                         names.append(name)
             for i in range(len(questions)):
-                index = questions.index(random.choice(questions))
-                result.append({"username": usernames[index], "name": names[index], "avatar": avatars[index],
-                               "idOfQuestion": questions_ids[index], "question": questions[index],
-                               "date": dates[index]})
-                usernames.remove(usernames[index])
-                names.remove(names[index])
-                avatars.remove(avatars[index])
-                questions_ids.remove(questions_ids[index])
-                questions.remove(questions[index])
-                dates.remove(dates[index])
+                result.append({"username": usernames[i], "name": names[i], "avatar": avatars[i],
+                               "idOfQuestion": questions_ids[i], "question": questions[i],
+                               "date": dates[i]})
             return json.dumps(result)
         finally:
             self.conn.close()
