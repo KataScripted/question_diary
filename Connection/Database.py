@@ -162,7 +162,7 @@ class Database:
             for user_id in users:
 
                 self.cur.execute(
-                    '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}';'''.format(user_id)
+                    '''SELECT (question_id) FROM public."ANSWER" WHERE user_id='{}' ORDER BY id DESC;'''.format(user_id)
                 )
                 question_id_querry = self.cur.fetchall()
                 for question_id_tuple in question_id_querry:
