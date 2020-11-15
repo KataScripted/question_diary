@@ -963,3 +963,18 @@ class Database:
             return json.dumps(["Deleted"])
         finally:
             self.conn.close()
+
+    def complaint_dao(self, username, question_id, text):
+        try:
+            self.cur.execute(
+                '''SELECT (id) FROM public."USER" WHERE username='{}';'''.format(username)
+            )
+            user_id_querry = self.cur.fetchone()
+            for user_id in user_id_querry:
+                self.cur.execute(
+                    '''INSERT INTO public."COMPLAINT"(user_id, question_id, text) VALUES('{}', '{}', '{}')'''.format(user_id, question_id, text)
+                )
+                self.conn.commit()
+                return json.dumps(["Reported"])
+        finally:
+            self.conn.close()

@@ -230,3 +230,12 @@ class Controller:
         database = Database()
         result = database.delete_answer_users_dao(answerID=new_data[0])
         return result
+
+    def complaint(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.complaint_dao(username=new_data[0], question_id=new_data[1], text=new_data[2])
+        return result

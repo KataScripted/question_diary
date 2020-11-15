@@ -139,24 +139,34 @@ def question_by_category():
     result = handler.get_question_by_category()
     return result
 
+
 @app.route('/updateanswer', methods=["GET", "POST"])
 def update_answer():
     result = handler.update_answer()
     return result
+
 
 @app.route('/updateanswerusers', methods=["GET", "POST"])
 def update_answer_user():
     result = handler.update_answer_user()
     return result
 
+
 @app.route('/deleteanswer', methods=["GET", "POST"])
 def delete_answer():
     result = handler.delete_answer()
     return result
 
+
 @app.route('/deleteanswerusers', methods=["GET", "POST"])
 def delete_answer_user():
     result = handler.delete_answer_users()
+    return result
+
+
+@app.route('/complaint', methods=["GET", "POST"])
+def comlaint():
+    result = handler.complaint()
     return result
 
 
