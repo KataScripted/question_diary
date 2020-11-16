@@ -33,7 +33,7 @@ class Database:
                 return json.dumps(result)
             else:
                 self.cur.execute(
-                    '''INSERT INTO public."USER"(username, notification, avatar, name) VALUES('{}','{}','{}');'''.format(
+                    '''INSERT INTO public."USER"(username, avatar, name) VALUES('{}','{}','{}');'''.format(
                         user,
                         avatar, name)
                 )
