@@ -52,9 +52,9 @@ class Database:
             rows = self.cur.fetchall()
             if len(rows) > 0:
                 self.conn.commit()
-                json.dumps([False])
+                return json.dumps([False])
             else:
-                json.dumps([True])
+                return json.dumps([True])
         finally:
             self.conn.close()
     # def get_users_for_notification_dao(self):
