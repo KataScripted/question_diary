@@ -45,20 +45,16 @@ class Database:
 
     def check_for_new_user_dao(self, username):
         try:
-            usernames = []
             self.cur.execute(
-                '''SELECT (username) FROM public."USER"'''
+
+                '''SELECT username FROM public."USER" WHERE username='{}';'''.format(username, )
             )
-            usernames_querry = self.cur.fetchall()
-            for username_tuple in usernames_querry:
-                for username_q in username_tuple:
-                    usernames.append(username_q)
-            print(username)
-            print(usernames)
-            if username in usernames:
-                return json.dumps([False])
+            rows = self.cur.fetchall()
+            if len(rows) > 0:
+                self.conn.commit()
+                json.dumps([False])
             else:
-                return json.dumps([True])
+                json.dumps([True])
         finally:
             self.conn.close()
     # def get_users_for_notification_dao(self):
