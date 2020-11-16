@@ -43,9 +43,9 @@ class Database:
                 for username_q in username_tuple:
                     usernames.append(username_q)
             if username in usernames:
-                return json.dumps([True])
-            else:
                 return json.dumps([False])
+            else:
+                return json.dumps([True])
         finally:
             self.conn.close()
     # def get_users_for_notification_dao(self):
