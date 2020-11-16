@@ -22,11 +22,22 @@ class Database:
 
     def insert_user_dao(self, user, avatar, name):
         try:
+            usernames = []
             self.cur.execute(
-                '''INSERT INTO public."USER"(username, avatar, name) VALUES('{}','{}','{}');'''.format(
-                    user,
-                    avatar, name)
+                '''SELECT (username) FROM public."USER"'''
             )
+            usernames_querry = self.cur.fetchall()
+            for username_tuple in usernames_querry:
+                for username_q in username_tuple:
+                    usernames.append(username_q)
+            if user in usernames:
+                return json.dumps(["Inserted"])
+            else:
+                self.cur.execute(
+                    '''INSERT INTO public."USER"(username, avatar, name) VALUES('{}','{}','{}');'''.format(
+                        user,
+                        avatar, name)
+                )
             self.conn.commit()
             return json.dumps(["Inserted"])
         finally:
