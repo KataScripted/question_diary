@@ -14,8 +14,17 @@ class Controller:
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.insert_user_dao(user=new_data[0], notification=new_data[1], avatar=new_data[2],
-                                          name=new_data[3])
+        result = database.insert_user_dao(user=new_data[0], avatar=new_data[1],
+                                          name=new_data[2])
+        return result
+
+    def check_for_new_user(self):
+        data = json.loads(request.data)
+        new_data = []
+        for i in data.values():
+            new_data.append(i)
+        database = Database()
+        result = database.check_for_new_user_dao(username=new_data[0])
         return result
 
     def insert_answer(self):
@@ -119,7 +128,8 @@ class Controller:
         for i in data.values():
             new_data.append(i)
         database = Database()
-        result = database.get_all_answers_on_users_question_dao(user=new_data[0], question=new_data[1], creator=new_data[2])
+        result = database.get_all_answers_on_users_question_dao(user=new_data[0], question=new_data[1],
+                                                                creator=new_data[2])
         return result
 
     # def get_users_with_most_answered(self):

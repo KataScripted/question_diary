@@ -7,10 +7,15 @@ CORS(app)
 
 handler = Controller()
 
-
 @app.route('/insertuser', methods=["GET", "POST"])
 def insert_user():
     result = handler.insert_user()
+    return result
+
+
+@app.route('/isnew', methods=["GET", "POST"])
+def check_for_new_user():
+    result = handler.check_for_new_user()
     return result
 
 

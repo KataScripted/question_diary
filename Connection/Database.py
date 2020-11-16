@@ -20,30 +20,34 @@ class Database:
             f"dbname={db_for_connection_str} user={user_for_connection_str} password={password_for_connection_str} host={host_for_connection_str} port={port_for_connection_str}")
         self.cur = self.conn.cursor()
 
-    def insert_user_dao(self, user, notification, avatar, name):
+    def insert_user_dao(self, user, avatar, name):
         try:
             self.cur.execute(
-
-                '''SELECT username FROM public."USER" WHERE username='{}';'''.format(user, )
+                '''INSERT INTO public."USER"(username, avatar, name) VALUES('{}','{}','{}');'''.format(
+                    user,
+                    avatar, name)
             )
-            rows = self.cur.fetchall()
-            if len(rows) > 0:
-                self.conn.commit()
-                result = ["Exists"]
-                return json.dumps(result)
-            else:
-                self.cur.execute(
-                    '''INSERT INTO public."USER"(username, notification, avatar, name) VALUES('{}','{}','{}','{}');'''.format(
-                        user,
-                        notification, avatar, name)
-                )
-                self.conn.commit()
-                result = ["Inserted"]
-                return json.dumps(result)
-
+            self.conn.commit()
+            return json.dumps(["Inserted"])
         finally:
             self.conn.close()
 
+    def check_for_new_user_dao(self, username):
+        try:
+            usernames = []
+            self.cur.execute(
+                '''SELECT (username) FROM public."USER"'''
+            )
+            usernames_querry = self.cur.fetchall()
+            for username_tuple in usernames_querry:
+                for username_q in username_tuple:
+                    usernames.append(username_q)
+            if username in usernames:
+                return json.dumps([True])
+            else:
+                return json.dumps([False])
+        finally:
+            self.conn.close()
     # def get_users_for_notification_dao(self):
     #     try:
     #         result = []
@@ -127,7 +131,7 @@ class Database:
             for user_id in users:
                 self.cur.execute(
                     '''SELECT (id) FROM public."ANSWER" WHERE user_id='{}' AND datee='{}';'''.format(user_id,
-                                                                                                         date)
+                                                                                                     date)
                 )
             answer_ids = self.cur.fetchall()
             for q_id in questions:
@@ -139,7 +143,7 @@ class Database:
                     question_text.append(q)
             for question_tuple, answer_tuple, id, answer_id_tuple in zip(question_text, answers, questions, answer_ids):
                 for question1, answer1, answerID in zip(question_tuple, answer_tuple, answer_id_tuple):
-                    answers_d.append({"id": id, "question": question1, "answerID":answerID, "answer": answer1})
+                    answers_d.append({"id": id, "question": question1, "answerID": answerID, "answer": answer1})
             if bool(answers_d):
                 return json.dumps(answers_d)
             else:
@@ -201,7 +205,8 @@ class Database:
                     for question in question_querry:
                         questions.append(question)
             for question, answer, date, id, answerID in zip(questions, answers, dates, q_ids, a_ids):
-                result.append({"id": id, "question": question,"answerID":answerID, "answer": answer, "date": str(date)})
+                result.append(
+                    {"id": id, "question": question, "answerID": answerID, "answer": answer, "date": str(date)})
             return json.dumps(result)
         finally:
             self.conn.close()
@@ -479,11 +484,12 @@ class Database:
                         username_querry = self.cur.fetchone()
                         for username in username_querry:
                             usernames.append(username)
-            for question, answer, answerID, date, id, name, avatar, username in zip(questions, answers, a_ids, dates, q_ids, names,
-                                                                          avatars, usernames):
+            for question, answer, answerID, date, id, name, avatar, username in zip(questions, answers, a_ids, dates,
+                                                                                    q_ids, names,
+                                                                                    avatars, usernames):
                 result.append(
                     {"id": id, "userUsername": username, "userName": name, "userAvatar": avatar, "question": question,
-                     "answerID":answerID,
+                     "answerID": answerID,
                      "answer": answer,
                      "date": str(date)})
             return json.dumps(result)
@@ -916,8 +922,11 @@ class Database:
             for item in answered_questions:
                 questions.remove(item)
 
-            for id, question, answer, date, answerID in zip(id_answered_questions, answered_questions, answers, date_answered, id_answers):
-                result.append({"id": id, "question": question, "isAnswered": True, "answerID":answerID, "answer": answer, "date": str(date)})
+            for id, question, answer, date, answerID in zip(id_answered_questions, answered_questions, answers,
+                                                            date_answered, id_answers):
+                result.append(
+                    {"id": id, "question": question, "isAnswered": True, "answerID": answerID, "answer": answer,
+                     "date": str(date)})
             for id, question in zip(ids, questions):
                 result.append({"id": id, "question": question, "isAnswered": False})
             return json.dumps(result)
@@ -972,7 +981,8 @@ class Database:
             user_id_querry = self.cur.fetchone()
             for user_id in user_id_querry:
                 self.cur.execute(
-                    '''INSERT INTO public."COMPLAINT"(user_id, question_id, text) VALUES('{}', '{}', '{}')'''.format(user_id, question_id, text)
+                    '''INSERT INTO public."COMPLAINT"(user_id, question_id, text) VALUES('{}', '{}', '{}')'''.format(
+                        user_id, question_id, text)
                 )
                 self.conn.commit()
                 return json.dumps(["Reported"])
