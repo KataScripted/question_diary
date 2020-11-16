@@ -22,24 +22,24 @@ class Database:
 
     def insert_user_dao(self, user, avatar, name):
         try:
-            usernames = []
             self.cur.execute(
-                '''SELECT (username) FROM public."USER"'''
+
+                '''SELECT username FROM public."USER" WHERE username='{}';'''.format(user, )
             )
-            usernames_querry = self.cur.fetchall()
-            for username_tuple in usernames_querry:
-                for username_q in username_tuple:
-                    usernames.append(username_q)
-            if user in usernames:
-                return json.dumps(["Inserted"])
+            rows = self.cur.fetchall()
+            if len(rows) > 0:
+                self.conn.commit()
+                result = ["Inserted"]
+                return json.dumps(result)
             else:
                 self.cur.execute(
-                    '''INSERT INTO public."USER"(username, avatar, name) VALUES('{}','{}','{}');'''.format(
+                    '''INSERT INTO public."USER"(username, notification, avatar, name) VALUES('{}','{}','{}');'''.format(
                         user,
                         avatar, name)
                 )
-            self.conn.commit()
-            return json.dumps(["Inserted"])
+                self.conn.commit()
+                result = ["Inserted"]
+                return json.dumps(result)
         finally:
             self.conn.close()
 
@@ -53,6 +53,8 @@ class Database:
             for username_tuple in usernames_querry:
                 for username_q in username_tuple:
                     usernames.append(username_q)
+            print(username)
+            print(usernames)
             if username in usernames:
                 return json.dumps([False])
             else:
