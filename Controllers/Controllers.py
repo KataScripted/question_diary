@@ -50,7 +50,7 @@ class Controller:
             return json.dumps(["Access Denied"])
 
     def check_for_new_user(self):
-        q = request.args.to_dict()
+        q = request.args.items()
         print(q)
         query_params = dict(parse_qsl(urlparse(url).query, keep_blank_values=True))
         print(query_params)
