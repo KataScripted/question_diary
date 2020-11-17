@@ -338,13 +338,15 @@ class Database:
                 self.cur.execute(
                     '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}';'''.format(question)
                 )
-
                 question_id_quarry = self.cur.fetchone()
-                for question_id in question_id_quarry:
-                    self.cur.execute(
-                        '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
-                            user_id, question_id, answer, date))
-                self.conn.commit()
+                if answer == "":
+                    return json.dumps(["Created"])
+                else:
+                    for question_id in question_id_quarry:
+                        self.cur.execute(
+                            '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
+                                user_id, question_id, answer, date))
+                    self.conn.commit()
             return json.dumps(["Created"])
         finally:
             self.conn.close()
