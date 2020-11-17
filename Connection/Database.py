@@ -990,10 +990,17 @@ class Database:
             user_id_querry = self.cur.fetchone()
             for user_id in user_id_querry:
                 self.cur.execute(
-                    '''INSERT INTO public."COMPLAINT"(user_id, question_id, text) VALUES('{}', '{}', '{}')'''.format(
-                        user_id, question_id, text)
+                    '''SELECT (id) FROM public."COMPLAINT" WHERE user_id='{}' AND question_id='{}';'''.format(user_id, question_id)
                 )
-                self.conn.commit()
-                return json.dumps(["Reported"])
+                isNew = self.cur.fetchone()
+                if isNew == None:
+                    self.cur.execute(
+                        '''INSERT INTO public."COMPLAINT"(user_id, question_id, text) VALUES('{}', '{}', '{}')'''.format(
+                            user_id, question_id, text)
+                    )
+                    self.conn.commit()
+                    return json.dumps(["Reported"])
+                else:
+                    return json.dumps(["Already Reported"])
         finally:
             self.conn.close()
