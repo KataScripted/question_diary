@@ -62,7 +62,7 @@ class Controller:
             result = database.check_for_new_user_dao(username=new_data[0])
             return result
         else:
-            json.dumps(["Access Denied"])
+            return json.dumps(["Access Denied"])
 
     def insert_answer(self):
         url = request.url
