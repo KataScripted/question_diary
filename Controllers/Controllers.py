@@ -51,7 +51,9 @@ class Controller:
 
     def check_for_new_user(self):
         url = request.url
+        print(url)
         query_params = dict(parse_qsl(urlparse(url).query, keep_blank_values=True))
+        print(query_params)
         access = self.is_valid(query=query_params, secret=self.secret)
         if access:
             data = json.loads(request.data)
@@ -66,6 +68,7 @@ class Controller:
 
     def insert_answer(self):
         url = request.url
+
         query_params = dict(parse_qsl(urlparse(url).query, keep_blank_values=True))
         access = self.is_valid(query=query_params, secret=self.secret)
         if access:
