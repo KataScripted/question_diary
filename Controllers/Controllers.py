@@ -32,6 +32,8 @@ class Controller:
         return result
 
     def check_for_new_user(self):
+        r = request.args.to_dict()
+        print(r)
         data = json.loads(request.data)
         new_data = []
         for i in data.values():
@@ -51,8 +53,6 @@ class Controller:
         return result
 
     def get_all_questions(self):
-        r =request.args.to_dict()
-        print(r)
         database = Database()
         result = database.get_all_questions_dao()
         return result
