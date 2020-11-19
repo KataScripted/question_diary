@@ -330,23 +330,30 @@ class Database:
             user_id_querry = self.cur.fetchone()
             for user_id in user_id_querry:
                 self.cur.execute(
-                    '''INSERT INTO public."USERSQUESTION"(question, user_id, date) VALUES('{}','{}','{}');'''.format(
-                        question,
-                        user_id, date)
+                    '''SELECT (id) FROM public."USERSQUESTION" WHERE user_id='{}' AND question='{}';'''.format(user_id, question)
                 )
-                self.conn.commit()
-                self.cur.execute(
-                    '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}';'''.format(question)
-                )
-                question_id_quarry = self.cur.fetchone()
-                if answer == "":
-                    return json.dumps(["Created"])
+                exists = self.cur.fetchall()
+                if exists != []:
+                    return json.dumps(["Dublicate"])
                 else:
-                    for question_id in question_id_quarry:
-                        self.cur.execute(
-                            '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
-                                user_id, question_id, answer, date))
+                    self.cur.execute(
+                        '''INSERT INTO public."USERSQUESTION"(question, user_id, date) VALUES('{}','{}','{}');'''.format(
+                            question,
+                            user_id, date)
+                    )
                     self.conn.commit()
+                    self.cur.execute(
+                        '''SELECT (id) FROM public."USERSQUESTION" WHERE question='{}';'''.format(question)
+                    )
+                    question_id_quarry = self.cur.fetchone()
+                    if answer == "":
+                        return json.dumps(["Created"])
+                    else:
+                        for question_id in question_id_quarry:
+                            self.cur.execute(
+                                '''INSERT INTO public."USERS_QUESTION_ANSWER"(user_id, question_id, answer, date) VALUES('{}','{}','{}','{}')'''.format(
+                                    user_id, question_id, answer, date))
+                        self.conn.commit()
             return json.dumps(["Created"])
         finally:
             self.conn.close()
