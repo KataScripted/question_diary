@@ -67,10 +67,9 @@ class Controller:
             parsed_data = {}
             for i in data:
                 parsed_data = i
-            print(parsed_data)
             database = Database()
             result = database.insert_user_dao(user=parsed_data.get("id"), avatar=parsed_data.get("photo_100"),
-                                              name=parsed_data.get("first_name")+parsed_data.get("last_name"))
+                                              name=parsed_data.get("first_name")+" "+parsed_data.get("last_name"))
             return result
 
     def check_for_new_user(self):
