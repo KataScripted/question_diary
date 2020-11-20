@@ -1,13 +1,14 @@
 import json
+import requests
 from base64 import b64encode
 from hashlib import sha256
 from hmac import HMAC
 from urllib.parse import urlencode
 
+
 from Connection.Database import Database
 from flask import request
 
-global access
 
 
 def is_valid(query: dict, secret: str) -> bool:
@@ -27,6 +28,23 @@ def is_valid(query: dict, secret: str) -> bool:
     fixed_hash = hash_code[:-1 if hash_code[-1] == "=" else None].replace('+', '-').replace('/', '_')
     return query.get("sign") == fixed_hash
 
+def get_user_ID(query: dict, secret: str) -> bool:
+    """Check VK Apps signature"""
+    vk_subset = filter(
+        lambda key: key.startswith("vk_"),
+        query
+    )
+    ordered = {k: query[k] for k in sorted(vk_subset)}
+    hash_code = b64encode(
+        HMAC(
+            secret.encode(),
+            urlencode(ordered, doseq=True).encode(),
+            sha256
+        ).digest()
+    ).decode("utf-8")
+    fixed_hash = hash_code[:-1 if hash_code[-1] == "=" else None].replace('+', '-').replace('/', '_')
+    return query.get("vk_user_id")
+
 
 class Controller:
     def __init__(self):
@@ -37,16 +55,22 @@ class Controller:
     def insert_user(self):
         headers = request.args.to_dict()
         valid = is_valid(query=headers, secret=self.secret)
+        userID = get_user_ID(query=headers, secret=self.secret)
+        url = "https://api.vk.com/method/users.get?user_ids={}&fields=photo_100,&access_token=a435a2c3a435a2c3a435a2c30ea4474d11aa435a435a2c3fb31e24486d1299ee7e789b5&v=5.126".format(userID)
+        print(url)
+        r = requests.get(url=url)
+        respose_json = r.json()
         if not valid:
             return json.dumps(["Access Denied"])
         else:
-            data = json.loads(request.data)
-            new_data = []
-            for i in data.values():
-                new_data.append(i)
+            data = respose_json["response"]
+            parsed_data = {}
+            for i in data:
+                parsed_data = i
+            print(parsed_data)
             database = Database()
-            result = database.insert_user_dao(user=new_data[0], avatar=new_data[1],
-                                              name=new_data[2])
+            result = database.insert_user_dao(user=parsed_data.get("id"), avatar=parsed_data.get("photo_100"),
+                                              name=parsed_data.get("first_name")+parsed_data.get("last_name"))
             return result
 
     def check_for_new_user(self):

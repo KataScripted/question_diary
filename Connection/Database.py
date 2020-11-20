@@ -811,14 +811,14 @@ class Database:
             ids = self.cur.fetchone()
             for id in ids:
                 self.cur.execute(
-                    '''SELECT (question) FROM public."USERSQUESTION" WHERE NOT user_id='{}';'''.format(id)
+                    '''SELECT (question) FROM public."USERSQUESTION" WHERE NOT user_id='{}' AND isverified='{}';'''.format(id, True)
                 )
                 questions_querry = self.cur.fetchall()
                 for q_tuple in questions_querry:
                     for q in q_tuple:
                         questions.append(q)
                 self.cur.execute(
-                    '''SELECT (id) FROM public."USERSQUESTION" WHERE NOT user_id='{}';'''.format(id)
+                    '''SELECT (id) FROM public."USERSQUESTION" WHERE NOT user_id='{}' AND isverified='{}';'''.format(id, True)
                 )
                 questions_id_querry = self.cur.fetchall()
                 for q_tuple in questions_id_querry:
