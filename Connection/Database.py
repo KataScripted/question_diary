@@ -7,15 +7,15 @@ import psycopg2
 
 class Database:
     def __init__(self):
-        host_for_connection_str = "ec2-34-232-212-164.compute-1.amazonaws.com"
+        host_for_connection_str = "ec2-54-157-66-140.compute-1.amazonaws.com"
 
-        db_for_connection_str = "dda36o54of7pm6"
+        db_for_connection_str = "dafoijdv258mhl"
 
-        user_for_connection_str = "zcvpawmwciwjix"
+        user_for_connection_str = "symkztngncihwg"
 
         port_for_connection_str = "5432"
 
-        password_for_connection_str = "906fca382d57a5254ffec5ad08d47820d815e041bc8c4ba1f5386e26f54f3b68"
+        password_for_connection_str = "ff224582b4401c547eb650efaf2aa63f0ccbd3db8e1ed82a66ac15d53d85f092"
         self.conn = psycopg2.connect(
             f"dbname={db_for_connection_str} user={user_for_connection_str} password={password_for_connection_str} host={host_for_connection_str} port={port_for_connection_str}")
         self.cur = self.conn.cursor()
