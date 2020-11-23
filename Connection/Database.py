@@ -20,6 +20,7 @@ class Database:
             f"dbname={db_for_connection_str} user={user_for_connection_str} password={password_for_connection_str} host={host_for_connection_str} port={port_for_connection_str}")
         self.cur = self.conn.cursor()
 
+
     def insert_user_dao(self, user, avatar, name):
         try:
             self.cur.execute(
